@@ -21,9 +21,33 @@ MainWindow::MainWindow(QWidget *parent)
   palette.setColor(QPalette::Background, Qt::black);
   this->setPalette(palette);
 
-
   ui->textEdit->setEnabled(false);
   ui->lineEdit->setEnabled(false);
+
+  //TODO: 总结窗口增加右键菜单
+  setContextMenuPolicy(Qt::ActionsContextMenu);
+  QAction *setMenu = new QAction("设置",this);
+  QAction *openFileMenu = new QAction("选择文件",this);
+  QAction *exportMenu = new QAction("导出",this);
+  QAction *lineMenu=new QAction(this);
+  lineMenu->setSeparator(true);//增加分割线
+  QAction *abortMenu = new QAction("关于",this);
+  QAction *exitMenu = new("退出",this);
+
+  addAction(openFileMenu);
+  addAction(setMenu);
+  addAction(exportMenu);
+  addAction(lineMenu);
+  addAction(abortMenu);
+  addAction(exitMenu);
+  connect(setMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
+  connect(openFileMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
+  connect(exportMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
+  connect(lineMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
+  connect(abortMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
+  connect(exittMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
+
+
 
 }
 

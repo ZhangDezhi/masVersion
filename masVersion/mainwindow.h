@@ -5,6 +5,8 @@
 #include <QDragEnterEvent>
 #include <QMimeData>
 #include <QTextStream>
+#include <QAction>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,13 +25,16 @@ private:
   bool isDrag;
   QPoint m_position;
 
-  //重写拖拽
+  //重写窗口拖拽
   void dragEnterEvent(QDragEnterEvent* event);
   void dropEvent(QDropEvent* event);
-  //重写鼠标拖动
 
+  //重写鼠标拖动
   void mouseReleaseEvent(QMouseEvent *);
   void mouseMoveEvent(QMouseEvent *e);
   void mousePressEvent(QMouseEvent *e);
+
+
+
 };
 #endif // MAINWINDOW_H
