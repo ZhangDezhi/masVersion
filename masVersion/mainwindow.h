@@ -30,6 +30,8 @@ private:
  bool isDrag;
  QPoint m_position;
  QString m_filePath;
+
+
   //重写窗口拖拽
   void dragEnterEvent(QDragEnterEvent* event);
   void dropEvent(QDropEvent* event);
