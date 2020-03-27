@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
+#include <sstream>
+
+#include <iostream>
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
   , ui(new Ui::MainWindow)
@@ -32,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
   QAction *lineMenu=new QAction(this);
   lineMenu->setSeparator(true);//增加分割线
   QAction *abortMenu = new QAction("关于",this);
-  QAction *exitMenu = new("退出",this);
+  QAction *exitMenu = new QAction("退出",this);
 
   addAction(openFileMenu);
   addAction(setMenu);
@@ -40,12 +43,12 @@ MainWindow::MainWindow(QWidget *parent)
   addAction(lineMenu);
   addAction(abortMenu);
   addAction(exitMenu);
-  connect(setMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
-  connect(openFileMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
-  connect(exportMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
-  connect(lineMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
-  connect(abortMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
-  connect(exittMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
+ // connect(setMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
+ // connect(openFileMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
+  //connect(exportMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
+  //connect(lineMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
+  //connect(abortMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
+  //connect(exitMenu,SIGNAL(triggered(bool)),this,SLOT(on_action_NewMenu_triggered()));
 
 
 
@@ -87,12 +90,12 @@ void MainWindow::dropEvent(QDropEvent* event)
   //获取文件路径 (QString)
   QList<QUrl> urls = event->mimeData()->urls();
   if (urls.isEmpty()) return;
-  QString qStr = urls.first().toLocalFile();
+  m_filePath = urls.first().toLocalFile();
   QString qName = urls.first().fileName();
 
   //转为char*
-  QByteArray qByteArrary = qStr.toLatin1();
-  char* filePath = qByteArrary.data();
+ // QByteArray qByteArrary = qStr.toLatin1();
+ // char* filePath = qByteArrary.data();
 
 
 
@@ -107,7 +110,7 @@ void MainWindow::dropEvent(QDropEvent* event)
   //  //绝对路径
   //  file_path = fileinfo.absolutePath();
 
-  qDebug() << qStr;
+  //qDebug() << m_filePath;
 
 
 
@@ -138,3 +141,45 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *)
 {
   isDrag = false;
 }
+
+void MainWindow::printfText(QString str, bool isError)
+{
+  if(isError){
+      ui->textEdit->setTextColor(Qt::red);
+    }
+
+    ui->textEdit->append(str);
+}
+
+void MainWindow::on_cmdButton_clicked()
+{
+
+ //参考: https://blog.csdn.net/believe_s/article/details/82318860
+ ui->textEdit->clear();
+ //#file
+ QProcess process(this);
+ QString cmdstr ;
+ cmdstr = QString("find \"version\" %1\n").arg(m_filePath);
+ cmdstr.replace(QString("\""), QString(""));
+ qDebug()<<cmdstr;// qDebug().noquote()<<cmdstr;
+
+ process.setProgram("cmd");
+ QStringList argument;
+ argument<<"/c"<< cmdstr;
+ qDebug()<<"list2="<<argument;
+
+
+
+ process.setArguments(argument);
+ process.start();
+ process.waitForStarted(); //等待程序启动
+ process.waitForFinished();//等待程序关闭
+ QString temp=QString::fromLocal8Bit(process.readAllStandardOutput()); //程序输出信息
+
+ qDebug()<<temp;
+ printfText(temp,true);
+
+
+ }
+
+

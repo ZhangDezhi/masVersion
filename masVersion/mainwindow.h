@@ -6,6 +6,8 @@
 #include <QMimeData>
 #include <QTextStream>
 #include <QAction>
+#include <QProcess>
+#include <QDir>
 
 
 QT_BEGIN_NAMESPACE
@@ -14,17 +16,20 @@ QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
 {
-  Q_OBJECT
+ Q_OBJECT
 
 public:
-  MainWindow(QWidget *parent = nullptr);
-  ~MainWindow();
+ MainWindow(QWidget *parent = nullptr);
+ ~MainWindow();
+
+private slots:
+ void on_cmdButton_clicked();
 
 private:
-  Ui::MainWindow *ui;
-  bool isDrag;
-  QPoint m_position;
-
+ Ui::MainWindow *ui;
+ bool isDrag;
+ QPoint m_position;
+ QString m_filePath;
   //重写窗口拖拽
   void dragEnterEvent(QDragEnterEvent* event);
   void dropEvent(QDropEvent* event);
@@ -34,7 +39,8 @@ private:
   void mouseMoveEvent(QMouseEvent *e);
   void mousePressEvent(QMouseEvent *e);
 
-
+ //打印
+ void printfText(QString str, bool isError);
 
 };
 #endif // MAINWINDOW_H
