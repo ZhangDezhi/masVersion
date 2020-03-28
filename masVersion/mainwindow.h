@@ -8,7 +8,8 @@
 #include <QAction>
 #include <QProcess>
 #include <QDir>
-
+#include "default.h"
+#include "setwin.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,6 +25,8 @@ public:
 
 private slots:
  void on_cmdButton_clicked();
+ void on_action_Menu_triggered();
+
 
 private:
  Ui::MainWindow *ui;
@@ -38,11 +41,14 @@ private:
 
   //重写鼠标拖动
   void mouseReleaseEvent(QMouseEvent *);
+
+
   void mouseMoveEvent(QMouseEvent *e);
   void mousePressEvent(QMouseEvent *e);
 
  //打印
  void printfText(QString str, bool isError);
+
 
 };
 #endif // MAINWINDOW_H
