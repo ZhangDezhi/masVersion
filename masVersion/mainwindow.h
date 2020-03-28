@@ -7,7 +7,9 @@
 #include <QTextStream>
 #include <QAction>
 #include <QProcess>
+#include <QFile>
 #include <QDir>
+#include <QTextCodec>
 #include "default.h"
 #include "setwin.h"
 
@@ -32,23 +34,37 @@ private:
  Ui::MainWindow *ui;
  bool isDrag;
  QPoint m_position;
+ QString m_fileName;
  QString m_filePath;
+ QString m_version;
+ QProcess m_process;
 
 
   //重写窗口拖拽
   void dragEnterEvent(QDragEnterEvent* event);
   void dropEvent(QDropEvent* event);
 
+  void enterEvent(QEvent *);                      //进入QWidget瞬间事件
+  void leaveEvent(QEvent *);                      //离开QWidget瞬间事件
+
+
   //重写鼠标拖动
   void mouseReleaseEvent(QMouseEvent *);
 
-
-  void mouseMoveEvent(QMouseEvent *e);
+  void mouseMoveEvent(QMouseEvent *e);//摁住鼠标事件
   void mousePressEvent(QMouseEvent *e);
 
- //打印
- void printfText(QString str, bool isError);
+  //滚轮事件
+  void wheelEvent(QWheelEvent *event);
 
+ //打印
+ void printfText(QString tStr, int tColor);
+
+ //查找文件
+ QString searchVersionFile(QString tPath,QString tName);
+
+ //读取文件
+ readVersionFile(QString filePath);
 
 };
 #endif // MAINWINDOW_H
