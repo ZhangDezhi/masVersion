@@ -3,20 +3,21 @@
 
 #include <QDialog>
 
-namespace Ui {
-  class SetWin;
+namespace Ui
+{
+class SetWin;
 }
 
 class SetWin : public QDialog
 {
-  Q_OBJECT
+    Q_OBJECT
 
-public:
-  explicit SetWin(QWidget *parent = nullptr);
-  ~SetWin();
+  public:
+    explicit SetWin(QWidget* parent = nullptr);
+    ~SetWin();
 
-private:
-  Ui::SetWin *ui;
+  private:
+    Ui::SetWin* ui;
 };
 
 #endif // SETWIN_H
