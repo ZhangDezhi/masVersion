@@ -256,7 +256,7 @@ QString MainWindow::searchVersionFile(QString tPath, QString tName)
     return rStr;
 }
 
-MainWindow::readVersionFile(QString filePath)
+void MainWindow::readVersionFile(QString filePath)
 {
     qDebug() << filePath;
     QTextCodec* codec = QTextCodec::codecForName("GB2312");

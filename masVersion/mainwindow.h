@@ -25,7 +25,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
   public:
-    MainWindow(QWidget* parent = nullptr);
+    MainWindow(QWidget* parent = 0);
     ~MainWindow();
 
   private slots:
@@ -64,6 +64,6 @@ class MainWindow : public QMainWindow
     QString searchVersionFile(QString tPath, QString tName);
 
     //读取文件
-    readVersionFile(QString filePath);
+    void readVersionFile(QString filePath);
 };
 #endif // MAINWINDOW_H

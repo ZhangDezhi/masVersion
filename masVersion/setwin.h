@@ -13,7 +13,7 @@ class SetWin : public QDialog
     Q_OBJECT
 
   public:
-    explicit SetWin(QWidget* parent = nullptr);
+    explicit SetWin(QWidget* parent = 0);
     ~SetWin();
 
   private:
