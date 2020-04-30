@@ -14,8 +14,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     ui->statusbar->hide();
     this->setAcceptDrops(true); //设置接受拖拽
-    setWindowFlags(Qt::FramelessWindowHint |
-                   Qt::WindowMinimizeButtonHint); //设置无标题栏窗体
+
    // setWindowFlags(Qt::FramelessWindowHint |
    //                Qt::WindowMinimizeButtonHint); //设置无标题栏窗体
 
@@ -24,7 +23,7 @@ MainWindow::MainWindow(QWidget* parent)
     palette.setColor(QPalette::Background, Qt::black);
     this->setPalette(palette);
 
-    ui->textEdit->setEnabled(false);
+
     //ui->textEdit->setEnabled(false);
     ui->lineEdit->setEnabled(false);
 
@@ -150,11 +149,13 @@ void MainWindow::enterEvent(QEvent*)
 {
 
     // if(button->geometry().contains(this->mapFromGlobal(QCursor::pos())))
-    qDebug() << "123";
-    qDebug() << tr("鼠标进入主界面事件");
+//    qDebug() << "123";
+//    qDebug() << tr("鼠标进入主界面事件");
 }
 
-void MainWindow::leaveEvent(QEvent*) { qDebug() << tr("鼠标离开主界面事件"); }
+void MainWindow::leaveEvent(QEvent*) {
+    //qDebug() << tr("鼠标离开主界面事件");
+}
 
 void MainWindow::mousePressEvent(QMouseEvent* e) {
     if (e->button() == Qt::LeftButton) {
@@ -324,27 +325,28 @@ void MainWindow::on_action_Menu_triggered() {
 }
 QString MainWindow::checkVersionThread(QString tFile){
     QString rStr;
+    QStringList argument;
 #ifdef Q_OS_MACOS
 #endif
-    m_process.setProgram("bash");
-    QStringList argument;
-    argument << "strings ";
-    argument << tFile;
-    argument << " | ";
-    argument << " grep version:";
-    QString bashStr = argument.join("");
+//    m_process.setProgram("bash");
 
-    m_process.start();
-    m_process.write(bashStr.toUtf8());
-    m_process.closeWriteChannel();
-    m_process.waitForFinished(); //等待程序关闭
-    // m_process.waitForReadyRead();
+//    argument << "strings ";
+//    argument << tFile;
+//    argument << " | ";
+//    argument << " grep version:";
+//    QString bashStr = argument.join("");
 
-    rStr= QString::fromLocal8Bit(m_process.readAllStandardOutput());
-    m_process.close();
+//    m_process.start();
+//    m_process.write(bashStr.toUtf8());
+//    m_process.closeWriteChannel();
+//    m_process.waitForFinished(); //等待程序关闭
+//    // m_process.waitForReadyRead();
 
-    //程序输出信息
-    qDebug() << rStr;
+//    rStr= QString::fromLocal8Bit(m_process.readAllStandardOutput());
+//    m_process.close();
+
+//    //程序输出信息
+//    qDebug() << rStr;
 
 
 #ifdef Q_OS_LINUX
@@ -354,13 +356,14 @@ QString MainWindow::checkVersionThread(QString tFile){
 
     // TODO: QProcess qDebug()<<cmdstr;// qDebug().noquote()<<cmdstr;
     m_process.setProgram("cmd");
-    QStringList argument;
+
     argument << "/c"
              << "find "
              << ""
                 "version:"
                 ""
              << " " << tFile;
+    qDebug() << tFile;
 
     m_process.setArguments(argument);
     m_process.start();
