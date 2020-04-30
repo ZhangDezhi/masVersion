@@ -15,16 +15,15 @@ MainWindow::MainWindow(QWidget* parent)
     ui->statusbar->hide();
     this->setAcceptDrops(true); //设置接受拖拽
 
-   // setWindowFlags(Qt::FramelessWindowHint |
-   //                Qt::WindowMinimizeButtonHint); //设置无标题栏窗体
+    // setWindowFlags(Qt::FramelessWindowHint |
+    //                Qt::WindowMinimizeButtonHint); //设置无标题栏窗体
 
     //设置窗体背景颜色。
     QPalette palette(this->palette());
     palette.setColor(QPalette::Background, Qt::black);
     this->setPalette(palette);
 
-
-    //ui->textEdit->setEnabled(false);
+    // ui->textEdit->setEnabled(false);
     ui->lineEdit->setEnabled(false);
 
     // ui->textEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
@@ -47,61 +46,57 @@ MainWindow::MainWindow(QWidget* parent)
     addAction(lineMenu);
     addAction(abortMenu);
     addAction(exitMenu);
-    connect(setMenu,
-            SIGNAL(triggered(bool)),
-            this,
+    connect(setMenu, SIGNAL(triggered(bool)), this,
             SLOT(on_action_Menu_triggered()));
-    connect(openFileMenu,
-            SIGNAL(triggered(bool)),
-            this,
+    connect(openFileMenu, SIGNAL(triggered(bool)), this,
             SLOT(on_action_Menu_triggered()));
-    connect(exportMenu,
-            SIGNAL(triggered(bool)),
-            this,
+    connect(exportMenu, SIGNAL(triggered(bool)), this,
             SLOT(on_action_Menu_triggered()));
-    connect(lineMenu,
-            SIGNAL(triggered(bool)),
-            this,
+    connect(lineMenu, SIGNAL(triggered(bool)), this,
             SLOT(on_action_Menu_triggered()));
-    connect(abortMenu,
-            SIGNAL(triggered(bool)),
-            this,
+    connect(abortMenu, SIGNAL(triggered(bool)), this,
             SLOT(on_action_Menu_triggered()));
-    connect(exitMenu,
-            SIGNAL(triggered(bool)),
-            this,
+    connect(exitMenu, SIGNAL(triggered(bool)), this,
             SLOT(on_action_Menu_triggered()));
 }
 
-MainWindow::~MainWindow() { delete ui; }
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
 
-void MainWindow::dragEnterEvent(QDragEnterEvent* event) {
-    if (event->mimeData()->hasUrls()) {
+void MainWindow::dragEnterEvent(QDragEnterEvent* event)
+{
+    if (event->mimeData()->hasUrls())
+    {
         event->acceptProposedAction();
-    } else {
+    }
+    else
+    {
         event->ignore();
     }
 }
 
-
-void MainWindow::dropEvent(QDropEvent* event) {
-//      const QMimeData* mimeData = event->mimeData();
-//      if(mimeData->hasUrls())
-//      {
-//        QList<QUrl>urlList = mimeData->urls();
-//        QString fileName = urlList.at(0).toLocalFile();
-//        if(!fileName.isEmpty())
-//        {
-//          QFile file(fileName);
-//          if(!file.open(QIODevice::ReadOnly))return;
-//          QTextStream in(&file);
-//          ui->textEdit->setText(in.readAll());
-//        }
-//      }
+void MainWindow::dropEvent(QDropEvent* event)
+{
+    //      const QMimeData* mimeData = event->mimeData();
+    //      if(mimeData->hasUrls())
+    //      {
+    //        QList<QUrl>urlList = mimeData->urls();
+    //        QString fileName = urlList.at(0).toLocalFile();
+    //        if(!fileName.isEmpty())
+    //        {
+    //          QFile file(fileName);
+    //          if(!file.open(QIODevice::ReadOnly))return;
+    //          QTextStream in(&file);
+    //          ui->textEdit->setText(in.readAll());
+    //        }
+    //      }
 
     //获取文件路径 (QString)
     QList<QUrl> urls = event->mimeData()->urls();
-    if (urls.isEmpty()) return;
+    if (urls.isEmpty())
+        return;
 
     m_filePath = urls.first().toLocalFile();
 
@@ -114,19 +109,17 @@ void MainWindow::dropEvent(QDropEvent* event) {
 
     QFileInfo fileinfo(m_filePath);
 
-     qDebug() << "----------->" << m_filePath;
-     qDebug() << "----------->" << m_fileName;
-
-    if(!fileinfo.isFile()){
+    if (!fileinfo.isFile())
+    {
         //路径
-         isfile = false;
-         ui->lineEdit->setText(m_filePath);
+        isfile = false;
+        ui->lineEdit->setText(m_filePath);
     }
-    else{
+    else
+    {
         //文件
         isfile = true;
-         ui->lineEdit->setText(qName);
-
+        ui->lineEdit->setText(qName);
     }
 
     //转为char*
@@ -145,38 +138,41 @@ void MainWindow::dropEvent(QDropEvent* event) {
     //  file_path = fileinfo.absolutePath();
 
     // qDebug() << m_filePath;
-
-
 }
 
 void MainWindow::enterEvent(QEvent*)
 {
 
     // if(button->geometry().contains(this->mapFromGlobal(QCursor::pos())))
-//    qDebug() << "123";
-//    qDebug() << tr("鼠标进入主界面事件");
+    //    qDebug() << "123";
+    //    qDebug() << tr("鼠标进入主界面事件");
 }
 
-void MainWindow::leaveEvent(QEvent*) {
-    //qDebug() << tr("鼠标离开主界面事件");
+void MainWindow::leaveEvent(QEvent*)
+{
+    // qDebug() << tr("鼠标离开主界面事件");
 }
 
-void MainWindow::mousePressEvent(QMouseEvent* e) {
-    if (e->button() == Qt::LeftButton) {
+void MainWindow::mousePressEvent(QMouseEvent* e)
+{
+    if (e->button() == Qt::LeftButton)
+    {
         isDrag     = true;
         m_position = e->globalPos() - this->pos();
         e->accept();
     }
 }
 
-void MainWindow::wheelEvent(QWheelEvent* event) {
+void MainWindow::wheelEvent(QWheelEvent* event)
+{
     return;
     QTextCursor tmpCursor = ui->textEdit->textCursor();
     if (event->delta() > 0) //当滚轮向上滑，远离使用者
     {
 
         QTextCursor tmpCursor = ui->textEdit->textCursor();
-        if (!tmpCursor.atBlockStart()) {
+        if (!tmpCursor.atBlockStart())
+        {
             ui->textEdit->moveCursor(QTextCursor::StartOfBlock);
             //  tmpCursor.setPosition(QTextCursor::StartOfBlock);
 
@@ -189,9 +185,11 @@ void MainWindow::wheelEvent(QWheelEvent* event) {
         //  tmpCursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor, 4);
 
         ui->textEdit->moveCursor(QTextCursor::Up);
-    } else //当滚轮向下滑，靠近使用者
+    }
+    else //当滚轮向下滑，靠近使用者
     {
-        if (!tmpCursor.atBlockEnd()) {
+        if (!tmpCursor.atBlockEnd())
+        {
             ui->textEdit->moveCursor(QTextCursor::EndOfBlock);
             // tmpCursor.setPosition(QTextCursor::EndOfBlock);
             // tmpCursor.movePosition(QTextCursor::EndOfBlock,
@@ -203,30 +201,44 @@ void MainWindow::wheelEvent(QWheelEvent* event) {
     }
 }
 
-void MainWindow::mouseMoveEvent(QMouseEvent* e) {
-    if (isDrag && (e->buttons() && Qt::LeftButton)) {
+void MainWindow::mouseMoveEvent(QMouseEvent* e)
+{
+    if (isDrag && (e->buttons() && Qt::LeftButton))
+    {
         move(e->globalPos() - m_position);
         e->accept();
     }
 }
 
-void MainWindow::mouseReleaseEvent(QMouseEvent*) { isDrag = false; }
+void MainWindow::mouseReleaseEvent(QMouseEvent*)
+{
+    isDrag = false;
+}
 
-void MainWindow::printfText(QString tStr, int tColor) {
-    if (tColor == 0) {
+void MainWindow::printfText(QString tStr, int tColor)
+{
+    if (tColor == 0)
+    {
         ui->textEdit->setTextColor(Qt::blue);
-    } else if (tColor == 1) {
+    }
+    else if (tColor == 1)
+    {
         ui->textEdit->setTextColor(Qt::green);
-    } else if (tColor == 2) {
+    }
+    else if (tColor == 2)
+    {
         ui->textEdit->setTextColor(Qt::red);
-    } else {
+    }
+    else
+    {
         ui->textEdit->setTextColor(Qt::black);
     }
 
     ui->textEdit->append(tStr);
 }
 
-QString MainWindow::searchVersionFile(QString tPath, QString tName) {
+QString MainWindow::searchVersionFile(QString tPath, QString tName)
+{
     QString rStr;
 
     QString dirpath = "E://Server//Repository//SVN//工作//软件平台源码//"
@@ -240,18 +252,22 @@ QString MainWindow::searchVersionFile(QString tPath, QString tName) {
                 << "*.txt"
                 << "*.doc";
     //将过滤后的文件名称存入到files列表中
-    QStringList files = dir.entryList(
-            nameFilters, QDir::Files | QDir::Readable, QDir::Name);
+    QStringList files =
+        dir.entryList(nameFilters, QDir::Files | QDir::Readable, QDir::Name);
 
     int total = files.count();
-    for (int i = 0; i < total; ++i) {
+    for (int i = 0; i < total; ++i)
+    {
 
-        if (files.at(i).contains(tName, Qt::CaseInsensitive)) {
+        if (files.at(i).contains(tName, Qt::CaseInsensitive))
+        {
             // printfText(files.at(i),0);
             rStr = dirpath + "//" + files.at(i);
 
             break;
-        } else {
+        }
+        else
+        {
             // printfText(files.at(i),3);
         }
     }
@@ -259,23 +275,30 @@ QString MainWindow::searchVersionFile(QString tPath, QString tName) {
     return rStr;
 }
 
-void MainWindow::readVersionFile(QString filePath) {
+void MainWindow::readVersionFile(QString filePath)
+{
     qDebug() << filePath;
     QTextCodec* codec = QTextCodec::codecForName("GB2312");
-    QFile       file(filePath);
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        while (!file.atEnd()) {
+    QFile file(filePath);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        while (!file.atEnd())
+        {
 
             QByteArray line = file.readLine();
-            QString    str  = codec->toUnicode(line);
+            QString str     = codec->toUnicode(line);
             // qDebug() << str;
 
-            if (str == "\n") continue;
+            if (str == "\n")
+                continue;
 
-            if (str.contains(m_version, Qt::CaseInsensitive)) {
+            if (str.contains(m_version, Qt::CaseInsensitive))
+            {
 
                 printfText(codec->toUnicode(line), 2);
-            } else {
+            }
+            else
+            {
                 printfText(codec->toUnicode(line), 0);
             }
         }
@@ -283,60 +306,72 @@ void MainWindow::readVersionFile(QString filePath) {
     }
 }
 
-void MainWindow::on_cmdButton_clicked() {
+void MainWindow::on_cmdButton_clicked()
+{
 
     ui->textEdit->clear();
     // m_process= QProcess(this);
-     versionMap map;
+    versionMap map;
 
 #ifdef Q_OS_WIN
- map =  checkVersionThread(m_filePath,isfile);
- #endif
+    map = checkVersionThread(m_filePath, isfile);
+#endif
 #ifdef Q_OS_MACOS
-  map =  checkVersionThread(ui->lineEdit->text(),isfile);
+    map = checkVersionThread(ui->lineEdit->text(), isfile);
+#endif
+#ifdef Q_OS_LINUX
+      map = checkVersionThread(m_filePath, isfile);
 #endif
 
+    qDebug() << ui->lineEdit->text();
 
+    for (int i = 0; i < map.count(); i++)
+    {
 
-  qDebug() << ui->lineEdit->text();
+        QString verionStr =
+            QString("%1\n%2 \n").arg(map.keys().at(i)).arg(map.values().at(i));
+        qDebug() << verionStr;
 
-  for (int i =0;i<map.count();i++) {
-
-      QString verionStr = QString("%1\n%2 \n").arg(map.keys().at(i) ).arg(map.values().at(i));
-      qDebug() <<verionStr;
-
-      if(map.values().at(i).contains("version")){
-          printfText(verionStr,0);
-      }
-      else{
-           printfText(verionStr,2);
-      }
-
-  }
+        if (map.values().at(i).contains("version"))
+        {
+            printfText(verionStr, 0);
+        }
+        else
+        {
+            printfText(verionStr, 2);
+        }
+    }
 }
 
-void MainWindow::on_action_Menu_triggered() {
+void MainWindow::on_action_Menu_triggered()
+{
 
     QAction* act = qobject_cast<QAction*>(
-            sender()); //使用Qt的类型转换，将指针恢复为QAction类型
+        sender()); //使用Qt的类型转换，将指针恢复为QAction类型
     printfText(act->text(), true);
     if (act->text() == MENU_SELECT)
     {
-
     }
 
-    else if (act->text() == MENU_SET) {
+    else if (act->text() == MENU_SET)
+    {
         SetWin* setWindows = new SetWin;
         setWindows->show();
-    } else if (act->text() == MENU_EXPORT) {
-
-    } else if (act->text() == MENU_EXIT) {
+    }
+    else if (act->text() == MENU_EXPORT)
+    {
+    }
+    else if (act->text() == MENU_EXIT)
+    {
         QApplication* app;
         app->exit(0);
-    } else if (act->text() == MENU_ABORT) {
+    }
+    else if (act->text() == MENU_ABORT)
+    {
     }
 }
-QString MainWindow::checkVersionThread(QString tFile){
+QString MainWindow::checkVersionThread(QString tFile)
+{
     QString rStr;
     QStringList argument;
 #ifdef Q_OS_MACOS
@@ -355,7 +390,7 @@ QString MainWindow::checkVersionThread(QString tFile){
     m_process.waitForFinished(); //等待程序关闭
     // m_process.waitForReadyRead();
 
-    rStr= QString::fromLocal8Bit(m_process.readAllStandardOutput());
+    rStr = QString::fromLocal8Bit(m_process.readAllStandardOutput());
     m_process.close();
 
     //程序输出信息
@@ -363,6 +398,26 @@ QString MainWindow::checkVersionThread(QString tFile){
 
 #endif
 #ifdef Q_OS_LINUX
+
+    m_process.setProgram("bash");
+
+    argument << "strings ";
+    argument << tFile;
+    argument << " | ";
+    argument << " grep version:";
+    QString bashStr = argument.join("");
+
+    m_process.start();
+    m_process.write(bashStr.toUtf8());
+    m_process.closeWriteChannel();
+    m_process.waitForFinished(); //等待程序关闭
+    // m_process.waitForReadyRead();
+
+    rStr = QString::fromLocal8Bit(m_process.readAllStandardOutput());
+    m_process.close();
+
+    //程序输出信息
+    qDebug() << rStr;
 #endif
 
 #ifdef Q_OS_WIN
@@ -376,55 +431,58 @@ QString MainWindow::checkVersionThread(QString tFile){
                 "version:"
                 ""
              << " " << tFile;
-    qDebug() << "file:   "<<tFile;
+    qDebug() << "file:   " << tFile;
 
     m_process.setArguments(argument);
     m_process.start();
     m_process.waitForStarted();  //等待程序启动
     m_process.waitForFinished(); //等待程序关闭
     QString cmdOutStr = QString::fromLocal8Bit(
-            m_process.readAllStandardOutput()); //程序输出信息
+        m_process.readAllStandardOutput()); //程序输出信息
     qDebug() << cmdOutStr;
     QStringList outList = cmdOutStr.split("\r\n");
-    for (int lineNum = 0; lineNum < outList.count(); ++lineNum) {
+    for (int lineNum = 0; lineNum < outList.count(); ++lineNum)
+    {
         QString tmpStr = outList.at(lineNum);
 
         tmpStr.remove(QRegExp("\\s"));
 
-
-        if (tmpStr.contains("version", Qt::CaseInsensitive)) {
-//            //qDebug() << tmpStr;
+        if (tmpStr.contains("version", Qt::CaseInsensitive))
+        {
+            //            //qDebug() << tmpStr;
             tmpStr.replace(QString(":"), QString(""));
-            m_version          = tmpStr.split("version").at(1);
-            rStr = QString("version: %1").arg(m_version);
-           // printfText(rStr, 2);
+            m_version = tmpStr.split("version").at(1);
+            rStr      = QString("version: %1").arg(m_version);
+            // printfText(rStr, 2);
 
-//            printfText("", 0);
-//            printfText("", 0);
-//            printfText("-------------------------", 0);
-//            printfText("update List:", 0);
+            //            printfText("", 0);
+            //            printfText("", 0);
+            //            printfText("-------------------------", 0);
+            //            printfText("update List:", 0);
 
-           // readVersionFile(searchVersionFile("", m_fileName));
+            // readVersionFile(searchVersionFile("", m_fileName));
             break;
         }
     }
 
 #endif
-    return  rStr;
+    return rStr;
 }
-versionMap MainWindow::checkVersionThread(QString tStr,bool isfile)
+versionMap MainWindow::checkVersionThread(QString tStr, bool isfile)
 {
     versionMap rMap;
     QString rfullPath;
-    QString version ;
+    QString version;
 
-    if(!isfile){
+    if (!isfile)
+    {
 
         //设置要遍历的目录
         QDir dir(tStr);
 
         //将过滤后的文件名称存入到files列表中
-        QStringList files = dir.entryList( QDir::Files | QDir::Readable, QDir::Name);
+        QStringList files =
+            dir.entryList(QDir::Files | QDir::Readable, QDir::Name);
 
         int total = files.count();
         for (int i = 0; i < total; ++i) {
@@ -432,6 +490,9 @@ versionMap MainWindow::checkVersionThread(QString tStr,bool isfile)
 
 
 #ifdef Q_OS_WIN
+rfullPath = tStr + "/" + files.at(i);
+ #endif
+#ifdef Q_OS_LINUX
 rfullPath = tStr + "/" + files.at(i);
  #endif
 #ifdef Q_OS_MACOS
