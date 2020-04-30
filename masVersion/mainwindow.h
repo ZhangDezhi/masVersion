@@ -1,8 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "default.h"
-#include "setwin.h"
+
 #include <QAction>
 #include <QDir>
 #include <QDragEnterEvent>
@@ -14,8 +13,14 @@
 #include <QList>
 #include <QMap>
 #include <QFileInfo>
+#include <QFileDialog>
+#include <QMessageBox>
+
 #include "default.h"
 #include "setwin.h"
+#include "abortwin.h"
+
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -23,7 +28,6 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
-typedef QList<QString> verList;
 
 typedef QMap<QString,QString>versionMap;
 
@@ -31,7 +35,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
         public:
-    MainWindow(QWidget* parent = 0);
+    MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
         private slots:
@@ -47,6 +51,8 @@ class MainWindow : public QMainWindow {
     QString         m_filePath;
     QString         m_version;
     QProcess        m_process;
+
+     versionMap m_verMap;
 
     //重写窗口拖拽
     void dragEnterEvent(QDragEnterEvent* event);

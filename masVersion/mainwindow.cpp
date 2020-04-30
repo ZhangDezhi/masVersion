@@ -15,8 +15,8 @@ MainWindow::MainWindow(QWidget* parent)
     ui->statusbar->hide();
     this->setAcceptDrops(true); //设置接受拖拽
 
-    // setWindowFlags(Qt::FramelessWindowHint |
-    //                Qt::WindowMinimizeButtonHint); //设置无标题栏窗体
+    setWindowFlags(Qt::FramelessWindowHint |
+                   Qt::WindowMinimizeButtonHint); //设置无标题栏窗体
 
     //设置窗体背景颜色。
     QPalette palette(this->palette());
@@ -31,13 +31,12 @@ MainWindow::MainWindow(QWidget* parent)
 
     // TODO: 总结窗口增加右键菜单
     setContextMenuPolicy(Qt::ActionsContextMenu);
-    QAction* setMenu      = new QAction(MENU_SELECT, this);
     QAction* openFileMenu = new QAction(MENU_SET, this);
+    QAction* setMenu      = new QAction(MENU_SELECT, this);
     QAction* exportMenu   = new QAction(MENU_EXPORT, this);
     QAction* lineMenu     = new QAction(this);
     lineMenu->setSeparator(true); //增加分割线
-
-    QAction* abortMenu = new QAction(MENU_EXPORT, this);
+    QAction* abortMenu = new QAction(MENU_ABORT, this);
     QAction* exitMenu  = new QAction(MENU_EXIT, this);
 
     addAction(openFileMenu);
@@ -46,6 +45,7 @@ MainWindow::MainWindow(QWidget* parent)
     addAction(lineMenu);
     addAction(abortMenu);
     addAction(exitMenu);
+
     connect(setMenu, SIGNAL(triggered(bool)), this,
             SLOT(on_action_Menu_triggered()));
     connect(openFileMenu, SIGNAL(triggered(bool)), this,
@@ -310,29 +310,20 @@ void MainWindow::on_cmdButton_clicked()
 {
 
     ui->textEdit->clear();
+    m_verMap.clear();
     // m_process= QProcess(this);
-    versionMap map;
 
-#ifdef Q_OS_WIN
-    map = checkVersionThread(m_filePath, isfile);
-#endif
-#ifdef Q_OS_MACOS
-    map = checkVersionThread(ui->lineEdit->text(), isfile);
-#endif
-#ifdef Q_OS_LINUX
-      map = checkVersionThread(m_filePath, isfile);
-#endif
+    m_verMap = checkVersionThread(m_filePath, isfile);
 
-    qDebug() << ui->lineEdit->text();
 
-    for (int i = 0; i < map.count(); i++)
+    for (int i = 0; i < m_verMap.count(); i++)
     {
 
         QString verionStr =
-            QString("%1\n%2 \n").arg(map.keys().at(i)).arg(map.values().at(i));
+            QString("%1\n%2 \n").arg(m_verMap.keys().at(i)).arg(m_verMap.values().at(i));
         qDebug() << verionStr;
 
-        if (map.values().at(i).contains("version"))
+        if (m_verMap.values().at(i).contains("version"))
         {
             printfText(verionStr, 0);
         }
@@ -346,11 +337,12 @@ void MainWindow::on_cmdButton_clicked()
 void MainWindow::on_action_Menu_triggered()
 {
 
-    QAction* act = qobject_cast<QAction*>(
-        sender()); //使用Qt的类型转换，将指针恢复为QAction类型
-    printfText(act->text(), true);
+    //使用Qt的类型转换，将指针恢复为QAction类型
+    QAction* act = qobject_cast<QAction*>(sender());
+   // printfText(act->text(), true);
     if (act->text() == MENU_SELECT)
     {
+
     }
 
     else if (act->text() == MENU_SET)
@@ -360,14 +352,48 @@ void MainWindow::on_action_Menu_triggered()
     }
     else if (act->text() == MENU_EXPORT)
     {
+        if(m_verMap.count()<1) {
+            printfText("Export Error", 2);
+        }
+        else{
+            QString fileName = QFileDialog::getSaveFileName(this,tr("保存实时数据"),"",tr("日志文件 (*.txt"));
+            if(!fileName.isEmpty()){
+                QFile file(fileName);
+                if(!file.open(QIODevice::WriteOnly))
+                {
+                    QMessageBox msgBox;
+                    msgBox.setText("保存失败");
+                    msgBox.exec();
+                    printfText("导出文件Error", 2);
+                }
+                else{
+                    QString qs;
+                    for(int i =0;i<m_verMap.count();i++)
+                    {
+                        qs.append(m_verMap.keys().at(i));
+                        qs.append("   =   ");
+                        qs.append(m_verMap.values().at(i));
+                        qs.append("\n");
+                    }
+                    QTextStream stream(&file);
+                    stream<<qs;
+                    stream.flush();
+                    file.close();
+                    printfText("导出文件OK", 1);
+                }
+            }
+
+        }
     }
     else if (act->text() == MENU_EXIT)
     {
-        QApplication* app;
+        QApplication* app = nullptr;
         app->exit(0);
     }
     else if (act->text() == MENU_ABORT)
     {
+        AbortWin* abortWindows = new AbortWin;
+        abortWindows->show();
     }
 }
 QString MainWindow::checkVersionThread(QString tFile)
@@ -485,30 +511,28 @@ versionMap MainWindow::checkVersionThread(QString tStr, bool isfile)
             dir.entryList(QDir::Files | QDir::Readable, QDir::Name);
 
         int total = files.count();
-        for (int i = 0; i < total; ++i) {
-
-
+        for (int i = 0; i < total; ++i)
+        {
 
 #ifdef Q_OS_WIN
-rfullPath = tStr + "/" + files.at(i);
- #endif
+            rfullPath = tStr + "/" + files.at(i);
+#endif
 #ifdef Q_OS_LINUX
-rfullPath = tStr + "/" + files.at(i);
- #endif
+            rfullPath = tStr + "/" + files.at(i);
+#endif
 #ifdef Q_OS_MACOS
- rfullPath = tStr  + files.at(i);
+            rfullPath = tStr + files.at(i);
 #endif
 
             version = checkVersionThread(rfullPath);
-            rMap.insert(rfullPath,version);
-
+            rMap.insert(rfullPath, version);
         }
     }
-    else{
+    else
+    {
         rfullPath = tStr;
-        version = checkVersionThread(rfullPath);
-        rMap.insert(rfullPath,version);
-
+        version   = checkVersionThread(rfullPath);
+        rMap.insert(rfullPath, version);
     }
-    return  rMap;
+    return rMap;
 }

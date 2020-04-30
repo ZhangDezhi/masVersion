@@ -16,16 +16,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    abortwin.cpp \
     main.cpp \
     mainwindow.cpp \
     setwin.cpp
 
 HEADERS += \
+    abortwin.h \
     mainwindow.h \
     default.h \
     setwin.h
 
 FORMS += \
+    abortwin.ui \
     mainwindow.ui \
     setwin.ui
 

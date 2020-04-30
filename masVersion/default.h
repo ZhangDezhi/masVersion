@@ -7,4 +7,6 @@
 #define MENU_ABORT "关于"
 #define MENU_EXIT "退出"
 
+
+
 #endif // DEFAULT_H
