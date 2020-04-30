@@ -11,35 +11,41 @@
 #include <QMimeData>
 #include <QProcess>
 #include <QTextCodec>
-#include <QTextStream>
+#include <QList>
+#include <QMap>
+#include "default.h"
+#include "setwin.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui
-{
+namespace Ui {
 class MainWindow;
 }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
-{
+typedef QList<QString> verList;
+
+typedef QMap<QString,QString>versionMap;
+
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
-  public:
-    MainWindow(QWidget* parent = 0);
+        public:
+    MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
-  private slots:
+        private slots:
     void on_cmdButton_clicked();
     void on_action_Menu_triggered();
 
-  private:
+        private:
     Ui::MainWindow* ui;
-    bool isDrag;
-    QPoint m_position;
-    QString m_fileName;
-    QString m_filePath;
-    QString m_version;
-    QProcess m_process;
+    bool            isfile;//是否为文件
+    bool            isDrag;
+    QPoint          m_position;
+    QString         m_fileName;
+    QString         m_filePath;
+    QString         m_version;
+    QProcess        m_process;
 
     //重写窗口拖拽
     void dragEnterEvent(QDragEnterEvent* event);
@@ -53,6 +59,9 @@ class MainWindow : public QMainWindow
 
     void mouseMoveEvent(QMouseEvent* e); //摁住鼠标事件
     void mousePressEvent(QMouseEvent* e);
+
+    versionMap checkVersionThread(QString tStr,bool isPath);
+    QString checkVersionThread(QString tFile);
 
     //滚轮事件
     void wheelEvent(QWheelEvent* event);
