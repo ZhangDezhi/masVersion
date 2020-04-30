@@ -13,6 +13,7 @@
 #include <QTextCodec>
 #include <QList>
 #include <QMap>
+#include <QFileInfo>
 #include "default.h"
 #include "setwin.h"
 

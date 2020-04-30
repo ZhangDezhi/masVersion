@@ -112,17 +112,21 @@ void MainWindow::dropEvent(QDropEvent* event) {
 
     m_fileName = qName.split(".").at(0);
 
-    if(m_fileName.isEmpty()){
+    QFileInfo fileinfo(m_filePath);
+
+     qDebug() << "----------->" << m_filePath;
+     qDebug() << "----------->" << m_fileName;
+
+    if(!fileinfo.isFile()){
         //路径
-         qDebug() << m_filePath;
          isfile = false;
-          ui->lineEdit->setText(m_filePath);
+         ui->lineEdit->setText(m_filePath);
     }
     else{
         //文件
         isfile = true;
          ui->lineEdit->setText(qName);
-         qDebug() << "----------->" << m_fileName;
+
     }
 
     //转为char*
@@ -283,7 +287,16 @@ void MainWindow::on_cmdButton_clicked() {
 
     ui->textEdit->clear();
     // m_process= QProcess(this);
-  versionMap map =  checkVersionThread(ui->lineEdit->text(),isfile);
+     versionMap map;
+
+#ifdef Q_OS_WIN
+ map =  checkVersionThread(m_filePath,isfile);
+ #endif
+#ifdef Q_OS_MACOS
+  map =  checkVersionThread(ui->lineEdit->text(),isfile);
+#endif
+
+
 
   qDebug() << ui->lineEdit->text();
 
@@ -327,28 +340,28 @@ QString MainWindow::checkVersionThread(QString tFile){
     QString rStr;
     QStringList argument;
 #ifdef Q_OS_MACOS
+
+    m_process.setProgram("bash");
+
+    argument << "strings ";
+    argument << tFile;
+    argument << " | ";
+    argument << " grep version:";
+    QString bashStr = argument.join("");
+
+    m_process.start();
+    m_process.write(bashStr.toUtf8());
+    m_process.closeWriteChannel();
+    m_process.waitForFinished(); //等待程序关闭
+    // m_process.waitForReadyRead();
+
+    rStr= QString::fromLocal8Bit(m_process.readAllStandardOutput());
+    m_process.close();
+
+    //程序输出信息
+    qDebug() << rStr;
+
 #endif
-//    m_process.setProgram("bash");
-
-//    argument << "strings ";
-//    argument << tFile;
-//    argument << " | ";
-//    argument << " grep version:";
-//    QString bashStr = argument.join("");
-
-//    m_process.start();
-//    m_process.write(bashStr.toUtf8());
-//    m_process.closeWriteChannel();
-//    m_process.waitForFinished(); //等待程序关闭
-//    // m_process.waitForReadyRead();
-
-//    rStr= QString::fromLocal8Bit(m_process.readAllStandardOutput());
-//    m_process.close();
-
-//    //程序输出信息
-//    qDebug() << rStr;
-
-
 #ifdef Q_OS_LINUX
 #endif
 
@@ -363,7 +376,7 @@ QString MainWindow::checkVersionThread(QString tFile){
                 "version:"
                 ""
              << " " << tFile;
-    qDebug() << tFile;
+    qDebug() << "file:   "<<tFile;
 
     m_process.setArguments(argument);
     m_process.start();
@@ -378,17 +391,18 @@ QString MainWindow::checkVersionThread(QString tFile){
 
         tmpStr.remove(QRegExp("\\s"));
 
+
         if (tmpStr.contains("version", Qt::CaseInsensitive)) {
-            qDebug() << tmpStr;
+//            //qDebug() << tmpStr;
             tmpStr.replace(QString(":"), QString(""));
             m_version          = tmpStr.split("version").at(1);
-            rStr = QString("当前版本为: %1").arg(m_version);
-            printfText(rStr, 2);
+            rStr = QString("version: %1").arg(m_version);
+           // printfText(rStr, 2);
 
-            printfText("", 0);
-            printfText("", 0);
-            printfText("-------------------------", 0);
-            printfText("update List:", 0);
+//            printfText("", 0);
+//            printfText("", 0);
+//            printfText("-------------------------", 0);
+//            printfText("update List:", 0);
 
            // readVersionFile(searchVersionFile("", m_fileName));
             break;
@@ -416,8 +430,14 @@ versionMap MainWindow::checkVersionThread(QString tStr,bool isfile)
         for (int i = 0; i < total; ++i) {
 
 
-           // rStr = tStr + "//" + files.at(i);
-            rfullPath = tStr  + files.at(i);
+
+#ifdef Q_OS_WIN
+rfullPath = tStr + "/" + files.at(i);
+ #endif
+#ifdef Q_OS_MACOS
+ rfullPath = tStr  + files.at(i);
+#endif
+
             version = checkVersionThread(rfullPath);
             rMap.insert(rfullPath,version);
 
