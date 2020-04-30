@@ -342,7 +342,33 @@ void MainWindow::on_action_Menu_triggered()
    // printfText(act->text(), true);
     if (act->text() == MENU_SELECT)
     {
+      QUrl url = QFileDialog::getOpenFileUrl(this,tr("导入文件或文件夹"));
 
+
+
+      m_filePath = url.toLocalFile();
+
+      // QFileInfo fileInfo(urls.first().path());
+      // m_fileName=fileInfo.fileName();
+
+      QString qName = url.fileName();
+
+      m_fileName = qName.split(".").at(0);
+
+      QFileInfo fileinfo(m_filePath);
+
+      if (!fileinfo.isFile())
+      {
+          //路径
+          isfile = false;
+          ui->lineEdit->setText(m_filePath);
+      }
+      else
+      {
+          //文件
+          isfile = true;
+          ui->lineEdit->setText(qName);
+      }
     }
 
     else if (act->text() == MENU_SET)
@@ -356,7 +382,7 @@ void MainWindow::on_action_Menu_triggered()
             printfText("Export Error", 2);
         }
         else{
-            QString fileName = QFileDialog::getSaveFileName(this,tr("保存实时数据"),"",tr("日志文件 (*.txt"));
+            QString fileName = QFileDialog::getSaveFileName(this,tr("导出版本信息"),"output.txt",tr("版本信息文件 (*.txt"));
             if(!fileName.isEmpty()){
                 QFile file(fileName);
                 if(!file.open(QIODevice::WriteOnly))
@@ -396,6 +422,7 @@ void MainWindow::on_action_Menu_triggered()
         abortWindows->show();
     }
 }
+
 QString MainWindow::checkVersionThread(QString tFile)
 {
     QString rStr;
@@ -494,6 +521,7 @@ QString MainWindow::checkVersionThread(QString tFile)
 #endif
     return rStr;
 }
+
 versionMap MainWindow::checkVersionThread(QString tStr, bool isfile)
 {
     versionMap rMap;

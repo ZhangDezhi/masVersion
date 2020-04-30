@@ -4,6 +4,7 @@
 
 #include <QAction>
 #include <QDir>
+#include <QUrl>
 #include <QDragEnterEvent>
 #include <QFile>
 #include <QMainWindow>
