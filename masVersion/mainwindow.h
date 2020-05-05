@@ -1,59 +1,61 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-
 #include <QAction>
 #include <QDir>
-#include <QUrl>
 #include <QDragEnterEvent>
 #include <QFile>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QList>
 #include <QMainWindow>
+#include <QMap>
+#include <QMessageBox>
 #include <QMimeData>
 #include <QProcess>
 #include <QTextCodec>
-#include <QList>
-#include <QMap>
-#include <QFileInfo>
-#include <QFileDialog>
-#include <QMessageBox>
+#include <QUrl>
 
+#include "abortwin.h"
 #include "default.h"
 #include "setwin.h"
-#include "abortwin.h"
-
-
 
 QT_BEGIN_NAMESPACE
-namespace Ui {
+namespace Ui
+{
 class MainWindow;
 }
 QT_END_NAMESPACE
 
+typedef QMap<QString, QString> versionMap;
 
-typedef QMap<QString,QString>versionMap;
-
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
 
-        public:
+  public:
     MainWindow(QWidget* parent = nullptr);
     ~MainWindow();
 
-        private slots:
+  private slots:
     void on_cmdButton_clicked();
     void on_action_Menu_triggered();
 
-        private:
+  private:
     Ui::MainWindow* ui;
-    bool            isfile;//是否为文件
-    bool            isDrag;
-    QPoint          m_position;
-    QString         m_fileName;
-    QString         m_filePath;
-    QString         m_version;
-    QProcess        m_process;
+    SetWin* setWindows;
 
-     versionMap m_verMap;
+
+    bool isfile; //是否为文件
+    bool isDrag;
+    QPoint m_position;
+    QString m_fileName;
+    QString m_filePath;
+    QString m_version;
+    QString m_cfg_verMark;
+    QProcess m_process;
+
+    versionMap m_verMap;
 
     //重写窗口拖拽
     void dragEnterEvent(QDragEnterEvent* event);
@@ -68,7 +70,7 @@ class MainWindow : public QMainWindow {
     void mouseMoveEvent(QMouseEvent* e); //摁住鼠标事件
     void mousePressEvent(QMouseEvent* e);
 
-    versionMap checkVersionThread(QString tStr,bool isPath);
+    versionMap checkVersionThread(QString tStr, bool isPath);
     QString checkVersionThread(QString tFile);
 
     //滚轮事件

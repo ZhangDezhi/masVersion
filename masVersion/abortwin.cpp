@@ -19,7 +19,10 @@ AbortWin::AbortWin(QWidget* parent) : QDialog(parent), ui(new Ui::AbortWin)
                              "\n"
                              "RHEL: "
                              "\n"
-                             "strings fileName | grep \"version:\"");
+                             "strings fileName | grep \"version:\""
+                             ""
+                             ""
+                             "");
     ui->textBrowser->append(abtStr);
 }
 

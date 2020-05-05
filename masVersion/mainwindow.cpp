@@ -18,6 +18,10 @@ MainWindow::MainWindow(QWidget* parent)
     setWindowFlags(Qt::FramelessWindowHint |
                    Qt::WindowMinimizeButtonHint); //设置无标题栏窗体
 
+    setWindows = new SetWin;
+
+
+
     //设置窗体背景颜色。
     QPalette palette(this->palette());
     palette.setColor(QPalette::Background, Qt::black);
@@ -62,6 +66,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+    delete setWindows;
     delete ui;
 }
 
@@ -217,15 +222,15 @@ void MainWindow::mouseReleaseEvent(QMouseEvent*)
 
 void MainWindow::printfText(QString tStr, int tColor)
 {
-    if (tColor == 0)
+    if (tColor == TEXT_COLOR_BLUE)
     {
         ui->textEdit->setTextColor(Qt::blue);
     }
-    else if (tColor == 1)
+    else if (tColor == TEXT_COLOR_GREEN)
     {
         ui->textEdit->setTextColor(Qt::green);
     }
-    else if (tColor == 2)
+    else if (tColor == TEXT_COLOR_RED)
     {
         ui->textEdit->setTextColor(Qt::red);
     }
@@ -295,11 +300,11 @@ void MainWindow::readVersionFile(QString filePath)
             if (str.contains(m_version, Qt::CaseInsensitive))
             {
 
-                printfText(codec->toUnicode(line), 2);
+                printfText(codec->toUnicode(line), TEXT_COLOR_RED);
             }
             else
             {
-                printfText(codec->toUnicode(line), 0);
+                printfText(codec->toUnicode(line), TEXT_COLOR_BLUE);
             }
         }
         file.close();
@@ -325,11 +330,11 @@ void MainWindow::on_cmdButton_clicked()
 
         if (m_verMap.values().at(i).contains("version"))
         {
-            printfText(verionStr, 0);
+            printfText(verionStr, TEXT_COLOR_BLUE);
         }
         else
         {
-            printfText(verionStr, 2);
+            printfText(verionStr, TEXT_COLOR_RED);
         }
     }
 }
@@ -373,13 +378,13 @@ void MainWindow::on_action_Menu_triggered()
 
     else if (act->text() == MENU_SET)
     {
-        SetWin* setWindows = new SetWin;
+
         setWindows->show();
     }
     else if (act->text() == MENU_EXPORT)
     {
         if(m_verMap.count()<1) {
-            printfText("Export Error", 2);
+            printfText("Export Error", TEXT_COLOR_RED);
         }
         else{
             QString fileName = QFileDialog::getSaveFileName(this,tr("导出版本信息"),"output.txt",tr("版本信息文件 (*.txt"));
@@ -390,7 +395,7 @@ void MainWindow::on_action_Menu_triggered()
                     QMessageBox msgBox;
                     msgBox.setText("保存失败");
                     msgBox.exec();
-                    printfText("导出文件Error", 2);
+                    printfText("导出文件Error", TEXT_COLOR_RED);
                 }
                 else{
                     QString qs;
@@ -405,7 +410,7 @@ void MainWindow::on_action_Menu_triggered()
                     stream<<qs;
                     stream.flush();
                     file.close();
-                    printfText("导出文件OK", 1);
+                    printfText("导出文件OK", TEXT_COLOR_GREEN);
                 }
             }
 

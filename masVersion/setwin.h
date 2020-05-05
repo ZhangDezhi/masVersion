@@ -16,8 +16,16 @@ class SetWin : public QDialog
     explicit SetWin(QWidget* parent = 0);
     ~SetWin();
 
+
+
   private:
     Ui::SetWin* ui;
+
+  public:
+    QString verMark;
+
+
+
 };
 
 #endif // SETWIN_H

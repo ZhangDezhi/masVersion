@@ -26,6 +26,7 @@ SetWin::SetWin(QWidget *parent) :
   Qt::WindowFlags m_flags = windowFlags();
   setWindowFlags(m_flags | Qt::WindowStaysOnTopHint);
 
+  verMark = ui->verMark->text();
   ui->setupUi(this);
 
 }

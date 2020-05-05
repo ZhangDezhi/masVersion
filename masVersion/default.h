@@ -7,6 +7,10 @@
 #define MENU_ABORT "关于"
 #define MENU_EXIT "退出"
 
+#define TEXT_COLOR_BLUE 0
+
+#define TEXT_COLOR_GREEN 1
+#define TEXT_COLOR_RED  2
 
 
 #endif // DEFAULT_H
