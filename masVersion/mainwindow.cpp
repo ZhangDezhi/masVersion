@@ -34,8 +34,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     // TODO: 总结窗口增加右键菜单
     setContextMenuPolicy(Qt::ActionsContextMenu);
-    QAction* openFileMenu = new QAction(MENU_SET, this);
-    QAction* setMenu      = new QAction(MENU_SELECT, this);
+    QAction* openFileMenu = new QAction(MENU_SELECT, this);
+    QAction* setMenu      = new QAction(MENU_SET, this);
     QAction* exportMenu   = new QAction(MENU_EXPORT, this);
     QAction* lineMenu     = new QAction(this);
     lineMenu->setSeparator(true); //增加分割线
@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget* parent)
     QAction* exitMenu  = new QAction(MENU_EXIT, this);
 
     addAction(openFileMenu);
-    addAction(setMenu);
+    //addAction(setMenu);
     addAction(exportMenu);
     addAction(lineMenu);
     addAction(abortMenu);
@@ -603,45 +603,64 @@ QString MyThread::checkVersionThread(QString tFile)
     m_process.setProgram("cmd");
 
     argument << "/c"
-             << "find "
+             << " find "
              << ""
-                "version:"
-                ""
-             << " " << tFile;
+                ".gnu.version"
+             << ""
+             << tFile;
 
      emit  writeLogSignal(QString("当前查询: %1").arg(tFile),TEXT_COLOR_BLUE);
 
+    qDebug() << argument.join(" ");
     m_process.setArguments(argument);
     m_process.start();
-    m_process.waitForStarted();  //等待程序启动
-    m_process.waitForFinished(); //等待程序关闭
-    QString cmdOutStr = QString::fromLocal8Bit(
-        m_process.readAllStandardOutput()); //程序输出信息
-    //qDebug() << cmdOutStr;
-    QStringList outList = cmdOutStr.split("\r\n");
-    for (int lineNum = 0; lineNum < outList.count(); ++lineNum)
-    {
-        QString tmpStr = outList.at(lineNum);
+//    m_process.waitForStarted();  //等待程序启动
+//    ;
+//    ;
+//    ;
+//    ;
+//    m_process.waitForFinished(); //等待程序关闭
 
-        tmpStr.remove(QRegExp("\\s"));
 
-        if (tmpStr.contains("version", Qt::CaseInsensitive))
-        {
-            //            //qDebug() << tmpStr;
-            tmpStr.replace(QString(":"), QString(""));
-            m_version = tmpStr.split("version").at(1);
-            rStr      = QString("version: %1").arg(m_version);
-            // printfText(rStr, 2);
 
-            //            printfText("", 0);
-            //            printfText("", 0);
-            //            printfText("-------------------------", 0);
-            //            printfText("update List:", 0);
+    if (m_process.waitForStarted(-1)) {
+         QThread::sleep(1);
+        while(m_process.waitForFinished(-1)) {
+            QString cmdOutStr = QString::fromLocal8Bit(
+              m_process.readAllStandardOutput()); //程序输出信息
 
-            // readVersionFile(searchVersionFile("", m_fileName));
-            break;
+            qDebug() << cmdOutStr;
+
         }
     }
+
+
+
+//    QStringList outList = cmdOutStr.split("\r\n");
+//    for (int lineNum = 0; lineNum < outList.count(); ++lineNum)
+//    {
+//        QString tmpStr = outList.at(lineNum);
+
+//        tmpStr.remove(QRegExp("\\s"));
+
+//        if (tmpStr.contains("version", Qt::CaseInsensitive))
+//        {
+//            //            //qDebug() << tmpStr;
+//            tmpStr.replace(QString(":"), QString(""));
+//            m_version = tmpStr.split("version").at(1);
+//            rStr      = QString("version: %1").arg(m_version);
+//            qDebug() << rStr;
+//            // printfText(rStr, 2);
+
+//            //            printfText("", 0);
+//            //            printfText("", 0);
+//            //            printfText("-------------------------", 0);
+//            //            printfText("update List:", 0);
+
+//            // readVersionFile(searchVersionFile("", m_fileName));
+//            break;
+//        }
+//    }
 
 #endif
     return rStr;
