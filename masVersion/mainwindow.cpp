@@ -452,9 +452,8 @@ void MainWindow::finishedThreadSlot()
 
     for (int i = 0; i < myObjectThread->m_verMap.count(); i++)
     {
-      qDebug() <<i<<"-----------------" << myObjectThread->m_verMap.count();
-
-        QString verionStr = QString("--->   %1\n%2 \n")
+        QString verionStr = QString("--->%1   %2\n%3 \n")
+                                .arg(i)
                                 .arg(myObjectThread->m_verMap.keys().at(i))
                                 .arg(myObjectThread->m_verMap.values().at(i));
         qDebug() << verionStr;
