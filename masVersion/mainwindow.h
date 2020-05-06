@@ -10,6 +10,7 @@
 #include <QList>
 #include <QMainWindow>
 #include <QMap>
+#include <QThread>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QProcess>
@@ -29,6 +30,48 @@ QT_END_NAMESPACE
 
 typedef QMap<QString, QString> versionMap;
 
+
+
+
+class MyThread : public QObject
+{
+    Q_OBJECT
+public:
+
+    explicit MyThread(QObject *parent = nullptr);
+    //设置路径和线程
+    void initThread(QString tStr,bool isPath,QThread *tThread);
+
+    void closeThread();
+
+    //查询版本信息
+    versionMap checkVersionThread(QString tStr, bool isPath);
+    QString checkVersionThread(QString tFile);
+
+    //
+    QString m_filePath;
+    bool isfile; //是否为文件
+    versionMap m_verMap;
+    QThread* m_thread;
+
+  signals:
+
+    void checkFinishiSignal();
+    void writeLogSignal(QString log ,int color);
+  public slots:
+    void startThreadSlot();
+
+private:
+
+    QString m_version;
+    volatile bool isStop;
+};
+
+
+
+
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -41,6 +84,13 @@ class MainWindow : public QMainWindow
     void on_cmdButton_clicked();
     void on_action_Menu_triggered();
 
+    //
+
+    void closeThreadSlot();
+    void finishedThreadSlot();
+
+    void writLogSlog(QString log ,int color);
+
   private:
     Ui::MainWindow* ui;
     SetWin* setWindows;
@@ -51,11 +101,15 @@ class MainWindow : public QMainWindow
     QPoint m_position;
     QString m_fileName;
     QString m_filePath;
-    QString m_version;
-    QString m_cfg_verMark;
-    QProcess m_process;
 
-    versionMap m_verMap;
+    QString m_cfg_verMark;
+
+    QStringList m_ExportList;
+
+
+    QThread *firstThread;
+    MyThread *myObjectThread;
+
 
     //重写窗口拖拽
     void dragEnterEvent(QDragEnterEvent* event);
@@ -70,8 +124,7 @@ class MainWindow : public QMainWindow
     void mouseMoveEvent(QMouseEvent* e); //摁住鼠标事件
     void mousePressEvent(QMouseEvent* e);
 
-    versionMap checkVersionThread(QString tStr, bool isPath);
-    QString checkVersionThread(QString tFile);
+
 
     //滚轮事件
     void wheelEvent(QWheelEvent* event);
@@ -85,4 +138,20 @@ class MainWindow : public QMainWindow
     //读取文件
     void readVersionFile(QString filePath);
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #endif // MAINWINDOW_H

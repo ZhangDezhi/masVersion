@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -19,8 +20,6 @@ MainWindow::MainWindow(QWidget* parent)
                    Qt::WindowMinimizeButtonHint); //设置无标题栏窗体
 
     setWindows = new SetWin;
-
-
 
     //设置窗体背景颜色。
     QPalette palette(this->palette());
@@ -297,15 +296,17 @@ void MainWindow::readVersionFile(QString filePath)
             if (str == "\n")
                 continue;
 
-            if (str.contains(m_version, Qt::CaseInsensitive))
-            {
+            //            if (str.contains(m_version, Qt::CaseInsensitive))
+            //            {
 
-                printfText(codec->toUnicode(line), TEXT_COLOR_RED);
-            }
-            else
-            {
-                printfText(codec->toUnicode(line), TEXT_COLOR_BLUE);
-            }
+            //                printfText(codec->toUnicode(line),
+            //                TEXT_COLOR_RED);
+            //            }
+            //            else
+            //            {
+            //                printfText(codec->toUnicode(line),
+            //                TEXT_COLOR_BLUE);
+            //            }
         }
         file.close();
     }
@@ -315,28 +316,26 @@ void MainWindow::on_cmdButton_clicked()
 {
 
     ui->textEdit->clear();
-    m_verMap.clear();
-    // m_process= QProcess(this);
+    //
 
-    m_verMap = checkVersionThread(m_filePath, isfile);
+    firstThread    = new QThread; //线程容器
+    myObjectThread = new MyThread;
+    myObjectThread->moveToThread(firstThread); //将创建的对象移到线程容器中
+    connect(firstThread, SIGNAL(finished()), myObjectThread,
+            SLOT(deleteLater())); //终止线程时要调用deleteLater槽函数
+    connect(firstThread, SIGNAL(started()), myObjectThread,
+            SLOT(startThreadSlot())); //开启线程槽函数
+    connect(myObjectThread, SIGNAL(checkFinishiSignal()), this, SLOT(finishedThreadSlot()));
+    connect(myObjectThread,SIGNAL(writeLogSignal(QString,int)),this,SLOT(writLogSlog(QString,int)));
+
+    closeThreadSlot();
+
+    myObjectThread->initThread(m_filePath, isfile,firstThread);
 
 
-    for (int i = 0; i < m_verMap.count(); i++)
-    {
 
-        QString verionStr =
-            QString("%1\n%2 \n").arg(m_verMap.keys().at(i)).arg(m_verMap.values().at(i));
-        qDebug() << verionStr;
+    firstThread->start(); //开启多线程槽函数
 
-        if (m_verMap.values().at(i).contains("version"))
-        {
-            printfText(verionStr, TEXT_COLOR_BLUE);
-        }
-        else
-        {
-            printfText(verionStr, TEXT_COLOR_RED);
-        }
-    }
 }
 
 void MainWindow::on_action_Menu_triggered()
@@ -344,36 +343,34 @@ void MainWindow::on_action_Menu_triggered()
 
     //使用Qt的类型转换，将指针恢复为QAction类型
     QAction* act = qobject_cast<QAction*>(sender());
-   // printfText(act->text(), true);
+    // printfText(act->text(), true);
     if (act->text() == MENU_SELECT)
     {
-      QUrl url = QFileDialog::getOpenFileUrl(this,tr("导入文件或文件夹"));
+        QUrl url = QFileDialog::getOpenFileUrl(this, tr("导入文件或文件夹"));
 
+        m_filePath = url.toLocalFile();
 
+        // QFileInfo fileInfo(urls.first().path());
+        // m_fileName=fileInfo.fileName();
 
-      m_filePath = url.toLocalFile();
+        QString qName = url.fileName();
 
-      // QFileInfo fileInfo(urls.first().path());
-      // m_fileName=fileInfo.fileName();
+        m_fileName = qName.split(".").at(0);
 
-      QString qName = url.fileName();
+        QFileInfo fileinfo(m_filePath);
 
-      m_fileName = qName.split(".").at(0);
-
-      QFileInfo fileinfo(m_filePath);
-
-      if (!fileinfo.isFile())
-      {
-          //路径
-          isfile = false;
-          ui->lineEdit->setText(m_filePath);
-      }
-      else
-      {
-          //文件
-          isfile = true;
-          ui->lineEdit->setText(qName);
-      }
+        if (!fileinfo.isFile())
+        {
+            //路径
+            isfile = false;
+            ui->lineEdit->setText(m_filePath);
+        }
+        else
+        {
+            //文件
+            isfile = true;
+            ui->lineEdit->setText(qName);
+        }
     }
 
     else if (act->text() == MENU_SET)
@@ -383,37 +380,41 @@ void MainWindow::on_action_Menu_triggered()
     }
     else if (act->text() == MENU_EXPORT)
     {
-        if(m_verMap.count()<1) {
+        if (m_ExportList.count() < 1)
+        {
             printfText("Export Error", TEXT_COLOR_RED);
         }
-        else{
-            QString fileName = QFileDialog::getSaveFileName(this,tr("导出版本信息"),"output.txt",tr("版本信息文件 (*.txt"));
-            if(!fileName.isEmpty()){
+        else
+        {
+            QString fileName = QFileDialog::getSaveFileName(
+                this, tr("导出版本信息"), "output.txt",
+                tr("版本信息文件 (*.txt"));
+            if (!fileName.isEmpty())
+            {
                 QFile file(fileName);
-                if(!file.open(QIODevice::WriteOnly))
+                if (!file.open(QIODevice::WriteOnly))
                 {
                     QMessageBox msgBox;
                     msgBox.setText("保存失败");
                     msgBox.exec();
                     printfText("导出文件Error", TEXT_COLOR_RED);
                 }
-                else{
+                else
+                {
                     QString qs;
-                    for(int i =0;i<m_verMap.count();i++)
+                    for (int i = 0; i < m_ExportList.count(); i++)
                     {
-                        qs.append(m_verMap.keys().at(i));
-                        qs.append("   =   ");
-                        qs.append(m_verMap.values().at(i));
+                        qs.append(m_ExportList.at(i));
+
                         qs.append("\n");
                     }
                     QTextStream stream(&file);
-                    stream<<qs;
+                    stream << qs;
                     stream.flush();
                     file.close();
                     printfText("导出文件OK", TEXT_COLOR_GREEN);
                 }
             }
-
         }
     }
     else if (act->text() == MENU_EXIT)
@@ -428,10 +429,129 @@ void MainWindow::on_action_Menu_triggered()
     }
 }
 
-QString MainWindow::checkVersionThread(QString tFile)
+
+
+void MainWindow::closeThreadSlot()
+{
+    if (firstThread->isRunning())
+    {
+        myObjectThread->closeThread(); //关闭线程槽函数
+        firstThread->quit();           //退出事件循环
+        firstThread->wait();           //释放线程槽函数资源
+    }
+}
+
+void MainWindow::finishedThreadSlot()
+{
+
+     qDebug() << tr("多线程触发了finished信号123") << myObjectThread->m_verMap.count();
+     int tNum = myObjectThread->m_verMap.count();
+       printfText(QString("查询结束: 查询个数为: %1").arg(tNum), tNum<1?TEXT_COLOR_RED:TEXT_COLOR_GREEN);
+
+        ui->textEdit->clear();
+
+    for (int i = 0; i < myObjectThread->m_verMap.count(); i++)
+    {
+      qDebug() <<i<<"-----------------" << myObjectThread->m_verMap.count();
+
+        QString verionStr = QString("--->   %1\n%2 \n")
+                                .arg(myObjectThread->m_verMap.keys().at(i))
+                                .arg(myObjectThread->m_verMap.values().at(i));
+        qDebug() << verionStr;
+
+        QString exportStr = QString("%1  ==  %2")
+                            .arg(myObjectThread->m_verMap.keys().at(i))
+                            .arg(myObjectThread->m_verMap.values().at(i));
+
+        m_ExportList.append(exportStr);
+
+        if (myObjectThread->m_verMap.values().at(i).contains("version"))
+        {
+            printfText(verionStr, TEXT_COLOR_BLUE);
+        }
+        else
+        {
+            printfText(verionStr, TEXT_COLOR_RED);
+        }
+    }
+
+
+        if (firstThread->isRunning())
+        {
+            firstThread->quit();           //退出事件循环
+            firstThread->wait();           //释放线程槽函数资源
+        }
+
+
+}
+
+void MainWindow::writLogSlog(QString log, int color)
+{
+     printfText(log, color);
+}
+
+
+
+MyThread::MyThread(QObject *parent) : QObject(parent)
+{
+    isStop = false;
+}
+
+void MyThread::closeThread()
+{
+    isStop = true;
+}
+
+versionMap MyThread::checkVersionThread(QString tStr, bool isPath)
+{
+    versionMap rMap;
+    QString rfullPath;
+    QString version;
+
+    if (!isPath)
+    {
+
+        emit  writeLogSignal(tr("当前查询为文件夹"),TEXT_COLOR_BLUE);
+        //设置要遍历的目录
+        QDir dir(tStr);
+
+        //将过滤后的文件名称存入到files列表中
+        QStringList files =
+            dir.entryList(QDir::Files | QDir::Readable, QDir::Name);
+
+        int total = files.count();
+        for (int i = 0; i < total; ++i)
+        {
+
+#ifdef Q_OS_WIN
+            rfullPath = tStr + "/" + files.at(i);
+#endif
+#ifdef Q_OS_LINUX
+            rfullPath = tStr + "/" + files.at(i);
+#endif
+#ifdef Q_OS_MACOS
+            rfullPath = tStr + files.at(i);
+#endif
+
+            version = checkVersionThread(rfullPath);
+            rMap.insert(rfullPath, version);
+        }
+    }
+    else
+    {
+        emit  writeLogSignal(tr("当前查询为文件"),TEXT_COLOR_BLUE);
+        rfullPath = tStr;
+        version   = checkVersionThread(rfullPath);
+        rMap.insert(rfullPath, version);
+    }
+    return rMap;
+}
+
+QString MyThread::checkVersionThread(QString tFile)
 {
     QString rStr;
     QStringList argument;
+    QProcess m_process;
 #ifdef Q_OS_MACOS
 
     m_process.setProgram("bash");
@@ -452,7 +572,7 @@ QString MainWindow::checkVersionThread(QString tFile)
     m_process.close();
 
     //程序输出信息
-    qDebug() << rStr;
+    emit  writeLogSignal(QString("当前查询: %1").arg(rStr),TEXT_COLOR_BLUE);
 
 #endif
 #ifdef Q_OS_LINUX
@@ -475,7 +595,7 @@ QString MainWindow::checkVersionThread(QString tFile)
     m_process.close();
 
     //程序输出信息
-    qDebug() << rStr;
+     emit  writeLogSignal(QString("当前查询: %1").arg(rStr),TEXT_COLOR_BLUE);
 #endif
 
 #ifdef Q_OS_WIN
@@ -489,7 +609,8 @@ QString MainWindow::checkVersionThread(QString tFile)
                 "version:"
                 ""
              << " " << tFile;
-    qDebug() << "file:   " << tFile;
+
+     emit  writeLogSignal(QString("当前查询: %1").arg(tFile),TEXT_COLOR_BLUE);
 
     m_process.setArguments(argument);
     m_process.start();
@@ -497,7 +618,7 @@ QString MainWindow::checkVersionThread(QString tFile)
     m_process.waitForFinished(); //等待程序关闭
     QString cmdOutStr = QString::fromLocal8Bit(
         m_process.readAllStandardOutput()); //程序输出信息
-    qDebug() << cmdOutStr;
+    //qDebug() << cmdOutStr;
     QStringList outList = cmdOutStr.split("\r\n");
     for (int lineNum = 0; lineNum < outList.count(); ++lineNum)
     {
@@ -527,45 +648,30 @@ QString MainWindow::checkVersionThread(QString tFile)
     return rStr;
 }
 
-versionMap MainWindow::checkVersionThread(QString tStr, bool isfile)
+void MyThread::initThread(QString tStr, bool isPath, QThread *tThread)
 {
-    versionMap rMap;
-    QString rfullPath;
-    QString version;
-
-    if (!isfile)
-    {
-
-        //设置要遍历的目录
-        QDir dir(tStr);
-
-        //将过滤后的文件名称存入到files列表中
-        QStringList files =
-            dir.entryList(QDir::Files | QDir::Readable, QDir::Name);
-
-        int total = files.count();
-        for (int i = 0; i < total; ++i)
-        {
-
-#ifdef Q_OS_WIN
-            rfullPath = tStr + "/" + files.at(i);
-#endif
-#ifdef Q_OS_LINUX
-            rfullPath = tStr + "/" + files.at(i);
-#endif
-#ifdef Q_OS_MACOS
-            rfullPath = tStr + files.at(i);
-#endif
-
-            version = checkVersionThread(rfullPath);
-            rMap.insert(rfullPath, version);
-        }
-    }
-    else
-    {
-        rfullPath = tStr;
-        version   = checkVersionThread(rfullPath);
-        rMap.insert(rfullPath, version);
-    }
-    return rMap;
+    m_filePath = tStr;
+    isfile = isPath;
+    m_thread = tThread;
 }
+
+
+
+void MyThread::startThreadSlot()
+{
+
+    emit  writeLogSignal(tr("开始查询"),TEXT_COLOR_GREEN);
+    m_verMap =checkVersionThread(m_filePath, isfile);
+    emit  checkFinishiSignal();
+
+}
+
+
+
+
+
+
+
+
+
+
