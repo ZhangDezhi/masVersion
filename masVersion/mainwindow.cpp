@@ -605,9 +605,9 @@ QString MyThread::checkVersionThread(QString tFile)
                             TEXT_COLOR_BLUE);
         QStringList searchList ;
 
-        searchList << "version"
-                   << "Version"
-                   << "VERSION";
+        searchList << "version";
+//                   << "Version"
+//                   << "VERSION";
         foreach (QString searchStr, searchList) {
           rStr =  checkVersionCMD(tFile,searchStr);
           if(rStr.length() > 1)
@@ -621,31 +621,60 @@ QString MyThread::checkVersionThread(QString tFile)
 
 QString MyThread::checkVersionCMD(QString tFile, QString tStr)
 {
+
+//    QString file_full, file_name, file_path;
+//    QFileInfo fi;
+
+    //file_full = QFileDialog::getOpenFileName(this);
+
+//    fi = QFileInfo(tFile);
+//    file_name = fi.fileName();
+//    file_path = fi.absolutePath();
+
+
+
     QString rStr;
     QStringList argument;
     QProcess process;
     process.setProgram("cmd");
     QString path = QDir::toNativeSeparators(tFile); //路径转换
-    argument << " findstr "
-             << tStr
-             << " " << path << " | "
-             << "find"
-             << " "
-             << "\""
-             << tStr
-             << "\"";
+    argument  << "find "
+              << "\""
+              << tStr
+              << "\" "
+              <<"\"\""
+              << tFile
+              <<"\"\""
+              << "";
+
+//    argument
+//            << " findstr "
+//             << tStr
+//             << " "
+//             << "\""
+//             << tFile
+//             <<"\""
+//             << " | "
+//             << "find"
+//             << " "
+//             << "\""
+//             << tStr
+//             << "\"";
 
     QString cmdStr = argument.join("");
+    //qDebug () << cmdStr;
+    //qDebug ().noquote() << "-->" << cmdStr;
 
     process.start("cmd");
     process.waitForStarted();
-    process.write(cmdStr.toUtf8());
+    process.write(cmdStr.toLocal8Bit());
     process.write("\n\r");
     process.closeWriteChannel();
     process.waitForFinished();
     QString strTemp =
         QString::fromLocal8Bit(process.readAllStandardOutput());
 
+    //qDebug() << strTemp;
     QStringList outList = strTemp.split("\r\n");
     for (int lineNum = 0; lineNum < outList.count(); ++lineNum)
     {
