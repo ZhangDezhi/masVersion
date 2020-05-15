@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 
-
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -43,7 +42,7 @@ MainWindow::MainWindow(QWidget* parent)
     QAction* exitMenu  = new QAction(MENU_EXIT, this);
 
     addAction(openFileMenu);
-    //addAction(setMenu);
+    // addAction(setMenu);
     addAction(exportMenu);
     addAction(lineMenu);
     addAction(abortMenu);
@@ -325,17 +324,16 @@ void MainWindow::on_cmdButton_clicked()
             SLOT(deleteLater())); //终止线程时要调用deleteLater槽函数
     connect(firstThread, SIGNAL(started()), myObjectThread,
             SLOT(startThreadSlot())); //开启线程槽函数
-    connect(myObjectThread, SIGNAL(checkFinishiSignal()), this, SLOT(finishedThreadSlot()));
-    connect(myObjectThread,SIGNAL(writeLogSignal(QString,int)),this,SLOT(writLogSlog(QString,int)));
+    connect(myObjectThread, SIGNAL(checkFinishiSignal()), this,
+            SLOT(finishedThreadSlot()));
+    connect(myObjectThread, SIGNAL(writeLogSignal(QString, int)), this,
+            SLOT(writLogSlog(QString, int)));
 
     closeThreadSlot();
 
-    myObjectThread->initThread(m_filePath, isfile,firstThread);
-
-
+    myObjectThread->initThread(m_filePath, isfile, firstThread);
 
     firstThread->start(); //开启多线程槽函数
-
 }
 
 void MainWindow::on_action_Menu_triggered()
@@ -429,8 +427,6 @@ void MainWindow::on_action_Menu_triggered()
     }
 }
 
-
-
 void MainWindow::closeThreadSlot()
 {
     if (firstThread->isRunning())
@@ -444,11 +440,13 @@ void MainWindow::closeThreadSlot()
 void MainWindow::finishedThreadSlot()
 {
 
-     qDebug() << tr("多线程触发了finished信号123") << myObjectThread->m_verMap.count();
-     int tNum = myObjectThread->m_verMap.count();
-       printfText(QString("查询结束: 查询个数为: %1").arg(tNum), tNum<1?TEXT_COLOR_RED:TEXT_COLOR_GREEN);
+    qDebug() << tr("多线程触发了finished信号123")
+             << myObjectThread->m_verMap.count();
+    int tNum = myObjectThread->m_verMap.count();
+    printfText(QString("查询结束: 查询个数为: %1").arg(tNum),
+               tNum < 1 ? TEXT_COLOR_RED : TEXT_COLOR_GREEN);
 
-        ui->textEdit->clear();
+    ui->textEdit->clear();
 
     for (int i = 0; i < myObjectThread->m_verMap.count(); i++)
     {
@@ -459,8 +457,8 @@ void MainWindow::finishedThreadSlot()
         qDebug() << verionStr;
 
         QString exportStr = QString("%1  ==  %2")
-                            .arg(myObjectThread->m_verMap.keys().at(i))
-                            .arg(myObjectThread->m_verMap.values().at(i));
+                                .arg(myObjectThread->m_verMap.keys().at(i))
+                                .arg(myObjectThread->m_verMap.values().at(i));
 
         m_ExportList.append(exportStr);
 
@@ -474,24 +472,19 @@ void MainWindow::finishedThreadSlot()
         }
     }
 
-
-        if (firstThread->isRunning())
-        {
-            firstThread->quit();           //退出事件循环
-            firstThread->wait();           //释放线程槽函数资源
-        }
-
-
+    if (firstThread->isRunning())
+    {
+        firstThread->quit(); //退出事件循环
+        firstThread->wait(); //释放线程槽函数资源
+    }
 }
 
 void MainWindow::writLogSlog(QString log, int color)
 {
-     printfText(log, color);
+    printfText(log, color);
 }
 
-
-
-MyThread::MyThread(QObject *parent) : QObject(parent)
+MyThread::MyThread(QObject* parent) : QObject(parent)
 {
     isStop = false;
 }
@@ -510,7 +503,7 @@ versionMap MyThread::checkVersionThread(QString tStr, bool isPath)
     if (!isPath)
     {
 
-        emit  writeLogSignal(tr("当前查询为文件夹"),TEXT_COLOR_BLUE);
+        emit writeLogSignal(tr("当前查询为文件夹"), TEXT_COLOR_BLUE);
         //设置要遍历的目录
         QDir dir(tStr);
 
@@ -538,7 +531,7 @@ versionMap MyThread::checkVersionThread(QString tStr, bool isPath)
     }
     else
     {
-        emit  writeLogSignal(tr("当前查询为文件"),TEXT_COLOR_BLUE);
+        emit writeLogSignal(tr("当前查询为文件"), TEXT_COLOR_BLUE);
         rfullPath = tStr;
         version   = checkVersionThread(rfullPath);
         rMap.insert(rfullPath, version);
@@ -551,118 +544,112 @@ QString MyThread::checkVersionThread(QString tFile)
     QString rStr;
     QStringList argument;
     QProcess m_process;
+    // MacOS
+    {
 #ifdef Q_OS_MACOS
 
-    m_process.setProgram("bash");
+        m_process.setProgram("bash");
 
-    argument << "strings ";
-    argument << tFile;
-    argument << " | ";
-    argument << " grep version:";
-    QString bashStr = argument.join("");
+        argument << "strings ";
+        argument << tFile;
+        argument << " | ";
+        argument << " grep version:";
+        QString bashStr = argument.join("");
 
-    m_process.start();
-    m_process.write(bashStr.toUtf8());
-    m_process.closeWriteChannel();
-    m_process.waitForFinished(); //等待程序关闭
-    // m_process.waitForReadyRead();
+        m_process.start();
+        m_process.write(bashStr.toUtf8());
+        m_process.closeWriteChannel();
+        m_process.waitForFinished(); //等待程序关闭
+        // m_process.waitForReadyRead();
 
-    rStr = QString::fromLocal8Bit(m_process.readAllStandardOutput());
-    m_process.close();
+        rStr = QString::fromLocal8Bit(m_process.readAllStandardOutput());
+        m_process.close();
 
-    //程序输出信息
-    emit  writeLogSignal(QString("当前查询: %1").arg(rStr),TEXT_COLOR_BLUE);
+        //程序输出信息
+        emit writeLogSignal(QString("当前查询: %1").arg(rStr), TEXT_COLOR_BLUE);
 
 #endif
+    }
+    // Linux
+    {
 #ifdef Q_OS_LINUX
 
-    m_process.setProgram("bash");
+        m_process.setProgram("bash");
 
-    argument << "strings ";
-    argument << tFile;
-    argument << " | ";
-    argument << " grep version:";
-    QString bashStr = argument.join("");
+        argument << "strings ";
+        argument << tFile;
+        argument << " | ";
+        argument << " grep version:";
+        QString bashStr = argument.join("");
 
-    m_process.start();
-    m_process.write(bashStr.toUtf8());
-    m_process.closeWriteChannel();
-    m_process.waitForFinished(); //等待程序关闭
-    // m_process.waitForReadyRead();
+        m_process.start();
+        m_process.write(bashStr.toUtf8());
+        m_process.closeWriteChannel();
+        m_process.waitForFinished(); //等待程序关闭
+        // m_process.waitForReadyRead();
 
-    rStr = QString::fromLocal8Bit(m_process.readAllStandardOutput());
-    m_process.close();
+        rStr = QString::fromLocal8Bit(m_process.readAllStandardOutput());
+        m_process.close();
 
-    //程序输出信息
-     emit  writeLogSignal(QString("当前查询: %1").arg(rStr),TEXT_COLOR_BLUE);
+        //程序输出信息
+        emit writeLogSignal(QString("当前查询: %1").arg(rStr), TEXT_COLOR_BLUE);
 #endif
-
+    }
+    // Win
+    {
 #ifdef Q_OS_WIN
 
-    // TODO: QProcess qDebug()<<cmdstr;// qDebug().noquote()<<cmdstr;
-    m_process.setProgram("cmd");
+        m_process.setProgram("cmd");
+        QString path = QDir::toNativeSeparators(tFile); //路径转换
+        argument << " findstr "
+                 << "version"
+                 << " " << path << " | "
+                 << "find"
+                 << " "
+                 << " \"version\"";
 
-    argument << "/c"
-             << " find "
-             << ""
-                ".gnu.version"
-             << ""
-             << tFile;
+        emit writeLogSignal(QString("当前查询: %1").arg(tFile),
+                            TEXT_COLOR_BLUE);
 
-     emit  writeLogSignal(QString("当前查询: %1").arg(tFile),TEXT_COLOR_BLUE);
+        QString cmdStr = argument.join("");
 
-    qDebug() << argument.join(" ");
-    m_process.setArguments(argument);
-    m_process.start();
-//    m_process.waitForStarted();  //等待程序启动
-//    ;
-//    ;
-//    ;
-//    ;
-//    m_process.waitForFinished(); //等待程序关闭
+        m_process.start("cmd");
+        m_process.waitForStarted();
+        m_process.write(cmdStr.toUtf8());
+        m_process.write("\n\r");
+        m_process.closeWriteChannel();
+        m_process.waitForFinished();
+        QString strTemp =
+            QString::fromLocal8Bit(m_process.readAllStandardOutput());
 
+        QStringList outList = strTemp.split("\r\n");
+        for (int lineNum = 0; lineNum < outList.count(); ++lineNum)
+        {
+            QString tmpStr = outList.at(lineNum);
 
+            tmpStr.remove(QRegExp("\\s"));
+            if (tmpStr.contains("version", Qt::CaseInsensitive))
+            {
+                tmpStr.replace(QString(":"), QString(""));
+                tmpStr.replace(QString("="), QString(""));
+                QStringList verList = tmpStr.split("version");
+                foreach (QString verStr, verList)
+                {
 
-    if (m_process.waitForStarted(-1)) {
-         QThread::sleep(1);
-        while(m_process.waitForFinished(-1)) {
-            QString cmdOutStr = QString::fromLocal8Bit(
-              m_process.readAllStandardOutput()); //程序输出信息
-
-            qDebug() << cmdOutStr;
-
+                    if (verStr.contains("v2.0", Qt::CaseInsensitive))
+                    {
+                        m_version = verStr;
+                        rStr      = QString("version: %1").arg(m_version);
+                        qDebug() << rStr;
+                        // readVersionFile(searchVersionFile("", m_fileName));
+                        return rStr;
+                    }
+                }
+            }
         }
-    }
-
-
-
-//    QStringList outList = cmdOutStr.split("\r\n");
-//    for (int lineNum = 0; lineNum < outList.count(); ++lineNum)
-//    {
-//        QString tmpStr = outList.at(lineNum);
-
-//        tmpStr.remove(QRegExp("\\s"));
-
-//        if (tmpStr.contains("version", Qt::CaseInsensitive))
-//        {
-//            //            //qDebug() << tmpStr;
-//            tmpStr.replace(QString(":"), QString(""));
-//            m_version = tmpStr.split("version").at(1);
-//            rStr      = QString("version: %1").arg(m_version);
-//            qDebug() << rStr;
-//            // printfText(rStr, 2);
-
-//            //            printfText("", 0);
-//            //            printfText("", 0);
-//            //            printfText("-------------------------", 0);
-//            //            printfText("update List:", 0);
-
-//            // readVersionFile(searchVersionFile("", m_fileName));
-//            break;
-//        }
-//    }
 
 #endif
+    }
     return rStr;
 }
 

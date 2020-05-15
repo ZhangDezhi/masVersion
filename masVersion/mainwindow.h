@@ -31,8 +31,6 @@ QT_END_NAMESPACE
 typedef QMap<QString, QString> versionMap;
 
 
-
-
 class MyThread : public QObject
 {
     Q_OBJECT
@@ -47,6 +45,7 @@ public:
     //查询版本信息
     versionMap checkVersionThread(QString tStr, bool isPath);
     QString checkVersionThread(QString tFile);
+    QString checkVersionCMD(QString tFile, QString tStr);
 
     //
     QString m_filePath;
@@ -66,10 +65,6 @@ private:
     QString m_version;
     volatile bool isStop;
 };
-
-
-
-
 
 
 class MainWindow : public QMainWindow
