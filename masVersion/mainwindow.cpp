@@ -599,58 +599,77 @@ QString MyThread::checkVersionThread(QString tFile)
     {
 #ifdef Q_OS_WIN
 
-        m_process.setProgram("cmd");
-        QString path = QDir::toNativeSeparators(tFile); //路径转换
-        argument << " findstr "
-                 << "version"
-                 << " " << path << " | "
-                 << "find"
-                 << " "
-                 << " \"version\"";
+
 
         emit writeLogSignal(QString("当前查询: %1").arg(tFile),
                             TEXT_COLOR_BLUE);
+        QStringList searchList ;
 
-        QString cmdStr = argument.join("");
-
-        m_process.start("cmd");
-        m_process.waitForStarted();
-        m_process.write(cmdStr.toUtf8());
-        m_process.write("\n\r");
-        m_process.closeWriteChannel();
-        m_process.waitForFinished();
-        QString strTemp =
-            QString::fromLocal8Bit(m_process.readAllStandardOutput());
-
-        QStringList outList = strTemp.split("\r\n");
-        for (int lineNum = 0; lineNum < outList.count(); ++lineNum)
-        {
-            QString tmpStr = outList.at(lineNum);
-
-            tmpStr.remove(QRegExp("\\s"));
-            if (tmpStr.contains("version", Qt::CaseInsensitive))
-            {
-                tmpStr.replace(QString(":"), QString(""));
-                tmpStr.replace(QString("="), QString(""));
-                QStringList verList = tmpStr.split("version");
-                foreach (QString verStr, verList)
-                {
-
-                    if (verStr.contains("v2.0", Qt::CaseInsensitive))
-                    {
-                        m_version = verStr;
-                        rStr      = QString("version: %1").arg(m_version);
-                        qDebug() << rStr;
-                        // readVersionFile(searchVersionFile("", m_fileName));
-                        return rStr;
-                    }
-                }
-            }
+        searchList << "version"
+                   << "Version"
+                   << "VERSION";
+        foreach (QString searchStr, searchList) {
+          rStr =  checkVersionCMD(tFile,searchStr);
+          if(rStr.length() > 1)
+              return rStr;
         }
 
 #endif
     }
     return rStr;
+}
+
+QString MyThread::checkVersionCMD(QString tFile, QString tStr)
+{
+    QString rStr;
+    QStringList argument;
+    QProcess process;
+    process.setProgram("cmd");
+    QString path = QDir::toNativeSeparators(tFile); //路径转换
+    argument << " findstr "
+             << tStr
+             << " " << path << " | "
+             << "find"
+             << " "
+             << "\""
+             << tStr
+             << "\"";
+
+    QString cmdStr = argument.join("");
+
+    process.start("cmd");
+    process.waitForStarted();
+    process.write(cmdStr.toUtf8());
+    process.write("\n\r");
+    process.closeWriteChannel();
+    process.waitForFinished();
+    QString strTemp =
+        QString::fromLocal8Bit(process.readAllStandardOutput());
+
+    QStringList outList = strTemp.split("\r\n");
+    for (int lineNum = 0; lineNum < outList.count(); ++lineNum)
+    {
+        QString tmpStr = outList.at(lineNum);
+
+        tmpStr.remove(QRegExp("\\s"));
+        if (tmpStr.contains("version", Qt::CaseInsensitive))
+        {
+            tmpStr.replace(QString(":"), QString(""));
+            tmpStr.replace(QString("="), QString(""));
+            QStringList verList = tmpStr.split(tStr);
+            foreach (QString verStr, verList)
+            {
+                if (verStr.contains("v2.0", Qt::CaseInsensitive))
+                {
+                    m_version = verStr;
+                    rStr      = QString("version: %1").arg(m_version);
+                    qDebug() << rStr;
+                    // readVersionFile(searchVersionFile("", m_fileName));
+                    return rStr;
+                }
+            }
+        }
+    }
 }
 
 void MyThread::initThread(QString tStr, bool isPath, QThread *tThread)

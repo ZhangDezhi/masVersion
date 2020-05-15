@@ -2,7 +2,7 @@
 #include "ui_abortwin.h"
 
 // 版本信息,Linux使用strings命令,Win使用find命令
-#define APP_VERSION "V1.0"
+#define APP_VERSION "V1.1"
 
 AbortWin::AbortWin(QWidget* parent) : QDialog(parent), ui(new Ui::AbortWin)
 {
