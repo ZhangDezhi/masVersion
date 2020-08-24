@@ -5,7 +5,7 @@
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     //设置窗体大小
-//    setFixedSize(365, 540);
+    setFixedSize(365, 540);
 
     //设置透明
     // setWindowOpacity(0.9);
@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->statusbar->hide();
     this->setAcceptDrops(true); //设置接受拖拽
 
-//    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint); //设置无标题栏窗体
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint); //设置无标题栏窗体
 
     setWindows = new SetWin;
 
