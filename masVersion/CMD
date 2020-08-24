@@ -1,0 +1,15 @@
+#检出单个文件
+
+
+读取单个文件日志
+检出单个文件
+```
+
+$  svn log https://172.16.4.236/svn/MAS平台软件/2_项目软件/2_郑州4号线/00_软件发布/2\)_redhat/lib/libdbf_dev.so
+$ svn co --depth=empty http://www.iusesvn.com/project1/images images_work_dir
+$ cd images_work_dir
+$ svn up logo.jpg
+$ svn log libdbf_dev.so
+$ find "version" libdbf_dev.so
+
+```
