@@ -41,5 +41,10 @@ RESOURCES += \
     resource.qrc
 
 DISTFILES += \
-    icon.rc
+    icon.rc \
+    ModuleOwnersList\
+平台模块名称编号对照表.txt\
+平台模块名称负责人对照表.txt \
+    CMD
+
 RC_FILE += icon.rc

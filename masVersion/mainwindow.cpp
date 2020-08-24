@@ -2,11 +2,10 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 
-MainWindow::MainWindow(QWidget* parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     //设置窗体大小
-    setFixedSize(365, 240);
+//    setFixedSize(365, 540);
 
     //设置透明
     // setWindowOpacity(0.9);
@@ -15,8 +14,7 @@ MainWindow::MainWindow(QWidget* parent)
     ui->statusbar->hide();
     this->setAcceptDrops(true); //设置接受拖拽
 
-    setWindowFlags(Qt::FramelessWindowHint |
-                   Qt::WindowMinimizeButtonHint); //设置无标题栏窗体
+//    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint); //设置无标题栏窗体
 
     setWindows = new SetWin;
 
@@ -48,18 +46,12 @@ MainWindow::MainWindow(QWidget* parent)
     addAction(abortMenu);
     addAction(exitMenu);
 
-    connect(setMenu, SIGNAL(triggered(bool)), this,
-            SLOT(on_action_Menu_triggered()));
-    connect(openFileMenu, SIGNAL(triggered(bool)), this,
-            SLOT(on_action_Menu_triggered()));
-    connect(exportMenu, SIGNAL(triggered(bool)), this,
-            SLOT(on_action_Menu_triggered()));
-    connect(lineMenu, SIGNAL(triggered(bool)), this,
-            SLOT(on_action_Menu_triggered()));
-    connect(abortMenu, SIGNAL(triggered(bool)), this,
-            SLOT(on_action_Menu_triggered()));
-    connect(exitMenu, SIGNAL(triggered(bool)), this,
-            SLOT(on_action_Menu_triggered()));
+    connect(setMenu, SIGNAL(triggered(bool)), this, SLOT(on_action_Menu_triggered()));
+    connect(openFileMenu, SIGNAL(triggered(bool)), this, SLOT(on_action_Menu_triggered()));
+    connect(exportMenu, SIGNAL(triggered(bool)), this, SLOT(on_action_Menu_triggered()));
+    connect(lineMenu, SIGNAL(triggered(bool)), this, SLOT(on_action_Menu_triggered()));
+    connect(abortMenu, SIGNAL(triggered(bool)), this, SLOT(on_action_Menu_triggered()));
+    connect(exitMenu, SIGNAL(triggered(bool)), this, SLOT(on_action_Menu_triggered()));
 }
 
 MainWindow::~MainWindow()
@@ -255,8 +247,7 @@ QString MainWindow::searchVersionFile(QString tPath, QString tName)
                 << "*.txt"
                 << "*.doc";
     //将过滤后的文件名称存入到files列表中
-    QStringList files =
-        dir.entryList(nameFilters, QDir::Files | QDir::Readable, QDir::Name);
+    QStringList files = dir.entryList(nameFilters, QDir::Files | QDir::Readable, QDir::Name);
 
     int total = files.count();
     for (int i = 0; i < total; ++i)
@@ -324,10 +315,8 @@ void MainWindow::on_cmdButton_clicked()
             SLOT(deleteLater())); //终止线程时要调用deleteLater槽函数
     connect(firstThread, SIGNAL(started()), myObjectThread,
             SLOT(startThreadSlot())); //开启线程槽函数
-    connect(myObjectThread, SIGNAL(checkFinishiSignal()), this,
-            SLOT(finishedThreadSlot()));
-    connect(myObjectThread, SIGNAL(writeLogSignal(QString, int)), this,
-            SLOT(writLogSlog(QString, int)));
+    connect(myObjectThread, SIGNAL(checkFinishiSignal()), this, SLOT(finishedThreadSlot()));
+    connect(myObjectThread, SIGNAL(writeLogSignal(QString, int)), this, SLOT(writLogSlog(QString, int)));
 
     closeThreadSlot();
 
@@ -384,9 +373,7 @@ void MainWindow::on_action_Menu_triggered()
         }
         else
         {
-            QString fileName = QFileDialog::getSaveFileName(
-                this, tr("导出版本信息"), "output.txt",
-                tr("版本信息文件 (*.txt"));
+            QString fileName = QFileDialog::getSaveFileName(this, tr("导出版本信息"), "output.csv", tr("版本信息文件 (*.txt"));
             if (!fileName.isEmpty())
             {
                 QFile file(fileName);
@@ -440,25 +427,18 @@ void MainWindow::closeThreadSlot()
 void MainWindow::finishedThreadSlot()
 {
 
-    qDebug() << tr("多线程触发了finished信号123")
-             << myObjectThread->m_verMap.count();
+    qDebug() << tr("多线程触发了finished信号123") << myObjectThread->m_verMap.count();
     int tNum = myObjectThread->m_verMap.count();
-    printfText(QString("查询结束: 查询个数为: %1").arg(tNum),
-               tNum < 1 ? TEXT_COLOR_RED : TEXT_COLOR_GREEN);
+    printfText(QString("查询结束: 查询个数为: %1").arg(tNum), tNum < 1 ? TEXT_COLOR_RED : TEXT_COLOR_GREEN);
 
     ui->textEdit->clear();
 
     for (int i = 0; i < myObjectThread->m_verMap.count(); i++)
     {
-        QString verionStr = QString("--->%1   %2\n%3 \n")
-                                .arg(i)
-                                .arg(myObjectThread->m_verMap.keys().at(i))
-                                .arg(myObjectThread->m_verMap.values().at(i));
+        QString verionStr = QString("--->%1   %2\n%3 \n").arg(i).arg(myObjectThread->m_verMap.keys().at(i)).arg(myObjectThread->m_verMap.values().at(i));
         qDebug() << verionStr;
 
-        QString exportStr = QString("%1  ==  %2")
-                                .arg(myObjectThread->m_verMap.keys().at(i))
-                                .arg(myObjectThread->m_verMap.values().at(i));
+        QString exportStr = QString("  %1  ,  %2  ").arg(myObjectThread->m_verMap.keys().at(i)).arg(myObjectThread->m_verMap.values().at(i));
 
         m_ExportList.append(exportStr);
 
@@ -508,8 +488,7 @@ versionMap MyThread::checkVersionThread(QString tStr, bool isPath)
         QDir dir(tStr);
 
         //将过滤后的文件名称存入到files列表中
-        QStringList files =
-            dir.entryList(QDir::Files | QDir::Readable, QDir::Name);
+        QStringList files = dir.entryList(QDir::Files | QDir::Readable, QDir::Name);
 
         int total = files.count();
         for (int i = 0; i < total; ++i)
@@ -599,19 +578,17 @@ QString MyThread::checkVersionThread(QString tFile)
     {
 #ifdef Q_OS_WIN
 
-
-
-        emit writeLogSignal(QString("当前查询: %1").arg(tFile),
-                            TEXT_COLOR_BLUE);
-        QStringList searchList ;
+        emit writeLogSignal(QString("当前查询: %1").arg(tFile), TEXT_COLOR_BLUE);
+        QStringList searchList;
 
         searchList << "version";
-//                   << "Version"
-//                   << "VERSION";
-        foreach (QString searchStr, searchList) {
-          rStr =  checkVersionCMD(tFile,searchStr);
-          if(rStr.length() > 1)
-              return rStr;
+        //                   << "Version"
+        //                   << "VERSION";
+        foreach (QString searchStr, searchList)
+        {
+            rStr = checkVersionCMD(tFile, searchStr);
+            if (rStr.length() > 1)
+                return rStr;
         }
 
 #endif
@@ -622,48 +599,42 @@ QString MyThread::checkVersionThread(QString tFile)
 QString MyThread::checkVersionCMD(QString tFile, QString tStr)
 {
 
-//    QString file_full, file_name, file_path;
-//    QFileInfo fi;
+    //    QString file_full, file_name, file_path;
+    //    QFileInfo fi;
 
-    //file_full = QFileDialog::getOpenFileName(this);
+    // file_full = QFileDialog::getOpenFileName(this);
 
-//    fi = QFileInfo(tFile);
-//    file_name = fi.fileName();
-//    file_path = fi.absolutePath();
-
-
+    //    fi = QFileInfo(tFile);
+    //    file_name = fi.fileName();
+    //    file_path = fi.absolutePath();
 
     QString rStr;
     QStringList argument;
     QProcess process;
     process.setProgram("cmd");
     QString path = QDir::toNativeSeparators(tFile); //路径转换
-    argument  << "find "
-              << "\""
-              << tStr
-              << "\" "
-              <<"\"\""
-              << tFile
-              <<"\"\""
-              << "";
+    argument << "find "
+             << "\"" << tStr << "\" "
+             << "\"\"" << tFile << "\"\""
+             << "";
 
-//    argument
-//            << " findstr "
-//             << tStr
-//             << " "
-//             << "\""
-//             << tFile
-//             <<"\""
-//             << " | "
-//             << "find"
-//             << " "
-//             << "\""
-//             << tStr
-//             << "\"";
+    //    argument
+    //            << " findstr "
+    //             << tStr
+    //             << " "
+    //             << "\""
+    //             << tFile
+    //             <<"\""
+    //             << " | "
+    //             << "find"
+    //             << " "
+    //             << "\""
+    //             << tStr
+    //             << "\"";
 
     QString cmdStr = argument.join("");
-    //qDebug () << cmdStr;
-    //qDebug ().noquote() << "-->" << cmdStr;
+    // qDebug () << cmdStr;
+    // qDebug ().noquote() << "-->" << cmdStr;
 
     process.start("cmd");
     process.waitForStarted();
@@ -671,10 +642,9 @@ QString MyThread::checkVersionCMD(QString tFile, QString tStr)
     process.write("\n\r");
     process.closeWriteChannel();
     process.waitForFinished();
-    QString strTemp =
-        QString::fromLocal8Bit(process.readAllStandardOutput());
+    QString strTemp = QString::fromLocal8Bit(process.readAllStandardOutput());
 
-    //qDebug() << strTemp;
+    // qDebug() << strTemp;
     QStringList outList = strTemp.split("\r\n");
     for (int lineNum = 0; lineNum < outList.count(); ++lineNum)
     {
