@@ -1,4 +1,4 @@
-#ifndef DEFAULT_H
+﻿#ifndef DEFAULT_H
 #define DEFAULT_H
 
 #define MENU_SELECT "选择文件"

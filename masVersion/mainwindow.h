@@ -1,4 +1,4 @@
-#ifndef MAINWINDOW_H
+﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QAction>
@@ -110,8 +110,6 @@ class MainWindow : public QMainWindow
     void dragEnterEvent(QDragEnterEvent* event);
     void dropEvent(QDropEvent* event);
 
-    void enterEvent(QEvent*); //进入QWidget瞬间事件
-    void leaveEvent(QEvent*); //离开QWidget瞬间事件
 
     //重写鼠标拖动
     void mouseReleaseEvent(QMouseEvent*);
@@ -120,15 +118,9 @@ class MainWindow : public QMainWindow
     void mousePressEvent(QMouseEvent* e);
 
 
-
-    //滚轮事件
-    void wheelEvent(QWheelEvent* event);
-
     //打印
     void printfText(QString tStr, int tColor);
 
-    //查找文件
-    QString searchVersionFile(QString tPath, QString tName);
 
     //读取文件
     void readVersionFile(QString filePath);

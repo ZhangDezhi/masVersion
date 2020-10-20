@@ -1,6 +1,10 @@
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+VERSION = 2020.10.18
+RC_ICONS = icon.ico
+#打印版本信息
+message(qt version: $$QT_VERSION)
 
 CONFIG += c++11
 
@@ -41,10 +45,7 @@ RESOURCES += \
     resource.qrc
 
 DISTFILES += \
-    icon.rc \
     ModuleOwnersList\
 平台模块名称编号对照表.txt\
 平台模块名称负责人对照表.txt \
     CMD
-
-RC_FILE += icon.rc
