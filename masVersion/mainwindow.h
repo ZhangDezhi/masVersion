@@ -46,6 +46,7 @@ public:
     versionMap checkVersionThread(QString tStr, bool isPath);
     QString checkVersionThread(QString tFile);
     QString checkVersionCMD(QString tFile, QString tStr);
+    QString checkMD5CMD(QString tFile);
 
     //
     QString m_filePath;
@@ -62,7 +63,7 @@ public:
 
 private:
 
-    QString m_version;
+    //QString m_version;
     volatile bool isStop;
 };
 

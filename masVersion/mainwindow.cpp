@@ -254,9 +254,16 @@ void MainWindow::finishedThreadSlot() {
                                 .arg( myObjectThread->m_verMap.values().at( i ) );
         qDebug() << verionStr;
 
+        QString valueRaw = myObjectThread->m_verMap.values().at( i );
+        QStringList valueList = valueRaw.split("\n");
+        QString valueAllStr;
+        foreach (QString tmpStr, valueList) {
+            valueAllStr += tmpStr;
+            valueAllStr += QString(",");
+        }
         QString exportStr = QString( "  %1  ,  %2  " )
                                 .arg( myObjectThread->m_verMap.keys().at( i ) )
-                                .arg( myObjectThread->m_verMap.values().at( i ) );
+                                .arg( valueAllStr );
 
         m_ExportList.append( exportStr );
 
@@ -388,51 +395,28 @@ QString MyThread::checkVersionThread( QString tFile ) {
         emit writeLogSignal( QString( "当前查询: %1" ).arg( tFile ), TEXT_COLOR_BLUE );
         QStringList searchList;
 
-        searchList << "version";
-        //                   << "Version"
-        //                   << "VERSION";
-        foreach ( QString searchStr, searchList ) {
-            rStr = checkVersionCMD( tFile, searchStr );
-            if ( rStr.length() > 1 )
-                return rStr;
-        }
+        //MD5
+        rStr += checkMD5CMD(tFile);
 
+        //Version
+        searchList << "version"<< "Version"<< "VERSION";
+        foreach ( QString searchStr, searchList ) {
+            rStr += checkVersionCMD( tFile, searchStr );
+        }
 #endif
     }
     return rStr;
 }
-
-QString MyThread::checkVersionCMD( QString tFile, QString tStr ) {
+QString MyThread::checkMD5CMD(QString tFile){
 
     QString rStr;
     QStringList argument;
     QProcess process;
     QString cmdStr;
     QString path;
-    QString strTemp;//version
-    QString strTemp2;//MD5
+    QString strTemp;//MD5
 
-#if 1  //version
-//    process.setProgram( "cmd" );
-//    path = QDir::toNativeSeparators( tFile ); //路径转换
-//    argument << "find " << "\"" << tStr << "\" " << "\"\"" << tFile << "\"\""  << "";
-
-//    cmdStr = argument.join( "" );
-//    // qDebug () << cmdStr;
-//    // qDebug ().noquote() << "-->" << cmdStr;
-
-//    process.start( "cmd" );
-//    process.waitForStarted();
-//    process.write( cmdStr.toLocal8Bit() );
-//    process.write( "\n\r" );
-//    process.closeWriteChannel();
-//    process.waitForFinished();
-//    strTemp = QString::fromLocal8Bit( process.readAllStandardOutput() );//resoult
-
-//    qDebug() <<"Version:    " << strTemp  ;
-#endif
-
-#if 2  //MD5
+#if 1  //MD5
     process.setProgram( "cmd" );
     path = QDir::toNativeSeparators( tFile ); //路径转换
     argument << "certutil " << " -hashfile " << "\"\"" << tFile << "\"\""  << " MD5";
@@ -443,41 +427,82 @@ QString MyThread::checkVersionCMD( QString tFile, QString tStr ) {
     process.write( "\n\r" );
     process.closeWriteChannel();
     process.waitForFinished();
-    strTemp2 = QString::fromLocal8Bit( process.readAllStandardOutput() );//resoult
-
-    qDebug() <<"MD5:    " << strTemp2  ;
+    strTemp = QString::fromLocal8Bit( process.readAllStandardOutput() );//resoult
+    //qDebug() <<"MD5:    " << strTemp2  ;
 #endif
 
-#if 5 //out MD5
+#if 1 //out MD5
+        strTemp.remove( QRegExp( "\\s" ) );
+        if ( strTemp.contains( "哈希:", Qt::CaseInsensitive ) ) {
+            QStringList verList = strTemp.split( "哈希:" );
 
-    QStringList outList2 = strTemp2.split( "\r\n" );
-    for ( int lineNum = 0; lineNum < outList2.count(); ++lineNum ) {
+            QString ttStr = verList[1];
+             if ( ttStr.contains( "CertUtil", Qt::CaseInsensitive ) ) {
+                 QStringList verList2 = ttStr.split( "CertUtil" );
+                 QString vvStr = verList2[0];
+                 vvStr.replace( QString( "\r\n" ), QString( "" ) );
+                 //qDebug() << vvStr;
+                 vvStr += QString("\n");
+                 return vvStr;
+             }
+        }
+#endif
+}
+
+QString MyThread::checkVersionCMD( QString tFile, QString tStr ) {
+
+    QString rStr;
+    QStringList argument;
+    QProcess process;
+    QString cmdStr;
+    QString path;
+    QString strTemp;//version
+
+#if 1  //version
+    process.setProgram( "cmd" );
+    path = QDir::toNativeSeparators( tFile ); //路径转换
+    argument << "find " << "\"" << tStr << "\" " << "\"\"" << tFile << "\"\""  << "";
+
+    cmdStr = argument.join( "" );
+    process.start( "cmd" );
+    process.waitForStarted();
+    process.write( cmdStr.toLocal8Bit() );
+    process.write( "\n\r" );
+    process.closeWriteChannel();
+    process.waitForFinished();
+    strTemp = QString::fromLocal8Bit( process.readAllStandardOutput() );//resoult
+    qDebug() <<"Version:    " << strTemp  <<"\n\n\n";
+#endif
+
+#if 1 //new
+    QStringList outList = strTemp.split( "\r\n" );//按照行读取
+    for ( int lineNum = 0; lineNum < outList.count(); ++lineNum ) {
         QString tmpStr = outList.at( lineNum );
-
         tmpStr.remove( QRegExp( "\\s" ) );
-        if ( tmpStr.contains( "哈希:", Qt::CaseInsensitive ) ) {
+        if ( tmpStr.contains( "version", Qt::CaseInsensitive ) ) {//检测是否包含Version
             tmpStr.replace( QString( ":" ), QString( "" ) );
             tmpStr.replace( QString( "=" ), QString( "" ) );
-            QStringList verList = tmpStr.split( tStr );
+            QStringList verList = tmpStr.split( tStr );//用version[区分大小写]分割，读取后面的版本
+            if(verList.count() <2) continue;
             foreach ( QString verStr, verList ) {
-                if ( verStr.contains( "v2.0", Qt::CaseInsensitive ) ) {
-                    m_version = verStr;
-                    rStr      = QString( "version: %1" ).arg( m_version );
-                    qDebug() << rStr;
-
-                    return rStr;
-                }
+               // if ( verStr.contains( "v2.0", Qt::CaseInsensitive ) ) {
+                if ( verStr.contains( "version", Qt::CaseInsensitive ) ) {//版本都包括V2.0
+                   // m_version = verStr;
+                    //rStr = QString("%1\n %2").arg(rStr).arg(verStr);
+                   rStr += QString( "%1" ).arg( verStr );
+                    rStr += QString("\n");
+                    //qDebug() << verStr;
+               }
             }
         }
     }
+    return rStr;
 #endif
 
-#if 3 //out Version
-
+#if 0 //old
     QStringList outList = strTemp.split( "\r\n" );
     for ( int lineNum = 0; lineNum < outList.count(); ++lineNum ) {
         QString tmpStr = outList.at( lineNum );
-
         tmpStr.remove( QRegExp( "\\s" ) );
         if ( tmpStr.contains( "version", Qt::CaseInsensitive ) ) {
             tmpStr.replace( QString( ":" ), QString( "" ) );
@@ -485,10 +510,9 @@ QString MyThread::checkVersionCMD( QString tFile, QString tStr ) {
             QStringList verList = tmpStr.split( tStr );
             foreach ( QString verStr, verList ) {
                 if ( verStr.contains( "v2.0", Qt::CaseInsensitive ) ) {
-                    m_version = verStr;
-                    rStr      = QString( "version: %1" ).arg( m_version );
+                   // m_version = verStr;
+                  //  rStr      = QString( "version: %1" ).arg( m_version );
                     qDebug() << rStr;
-
                     return rStr;
                 }
             }
