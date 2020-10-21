@@ -485,8 +485,8 @@ QString MyThread::checkVersionCMD( QString tFile, QString tStr ) {
             QStringList verList = tmpStr.split( tStr );//用version[区分大小写]分割，读取后面的版本
             if(verList.count() <2) continue;
             foreach ( QString verStr, verList ) {
-               // if ( verStr.contains( "v2.0", Qt::CaseInsensitive ) ) {
-                if ( verStr.contains( "version", Qt::CaseInsensitive ) ) {//版本都包括V2.0
+                if ( verStr.contains( "v2.0", Qt::CaseInsensitive ) ) {
+               // if ( verStr.contains( "version", Qt::CaseInsensitive ) ) {//版本都包括V2.0
                    // m_version = verStr;
                     //rStr = QString("%1\n %2").arg(rStr).arg(verStr);
                    rStr += QString( "%1" ).arg( verStr );

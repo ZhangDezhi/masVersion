@@ -2,7 +2,7 @@
 #include "ui_abortwin.h"
 
 // 版本信息,Linux使用strings命令,Win使用find命令
-#define APP_VERSION "V1.3"
+#define APP_VERSION "V1.4"
 
 AbortWin::AbortWin( QWidget* parent ) : QDialog( parent ), ui( new Ui::AbortWin ) {
     ui->setupUi( this );
@@ -19,9 +19,11 @@ AbortWin::AbortWin( QWidget* parent ) : QDialog( parent ), ui( new Ui::AbortWin 
                               "RHEL: "
                               "\n"
                               "strings fileName | grep \"version:\""
-                              ""
-                              ""
-                              "" );
+                              "\n"
+                              "\n"
+                              "程序查询逻辑: \n"
+                              "1. 查询 MD5值 \n"
+                              "2. 查询包含 Version/VERSION/version 并且包涵 V2.0 的字符串\n" );
     ui->textBrowser->append( abtStr );
 }
 
