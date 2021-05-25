@@ -1,7 +1,7 @@
 #!/bin/bash
 #!Author:ZhangDezhi
 # Create Time:2021-05-24 19:55
-# Last Modified  : 2021-05-25 13:07:13
+# Last Modified  : 2021-05-25 16:12:39
 # Name:svnMasVersion_html.sh
 # Version: v1.0
 # Description: This is a Script.
@@ -12,6 +12,7 @@ function readfile() {
 linecount=0
 cat $1 | while read LINE 
 do
+    FILE_NAME=""
     # <th align=\"center\" valign=\"middle\" style=\"width\":90px;\">时间:</th>
     HTML_VER_START="
     <tr>
@@ -40,12 +41,13 @@ do
             if [ $count == 0 ];then 
                 #文件名
                 HTML_VER=" <td style=\"WORD-WRAP: break-word; width:100px;\"><a href=\"./file/$NBB.html\">$NBB</a></td>"
+                FILE_NAME=$NBB
             else
                 if [[ $NBB == r* ]]
                 then
                     #有版本号的
                     # HTML_VER="<td style=\"WORD-WRAP: break-word\" bgcolor=\"#93FF93\">$NBB</td>"
-                    HTML_VER="<td style=\"WORD-WRAP: break-all; overflow:hidden; \" bgcolor=\"#93FF93\"><div title=\"$NBB\">$NBB</div></td>"
+                    HTML_VER="<td style=\"WORD-WRAP: break-all; overflow:hidden; \" bgcolor=\"#93FF93\"><div title=\"$NBB\"><a href=\"../History/$NBB/$FILE_NAME\">$NBB</a></div></td>"
                 else
                     HTML_VER="<td style=\"WORD-WRAP: break-word\" >$NBB</td>"
                 fi
@@ -83,6 +85,7 @@ main() {
     HTML_START="
     <HTML>
     <head>
+    <meta charset=\"utf-8\">
     <title> $INPUT </title>
     <style>
     table { border-collapse:collapse;}
@@ -97,7 +100,7 @@ main() {
     "
     HTML_END="</table></HTML>"
 
-    rm Report.html
+    #rm Report.html
     echo $HTML_START >> $OUTHTML
 
     readfile $INPUTCSV

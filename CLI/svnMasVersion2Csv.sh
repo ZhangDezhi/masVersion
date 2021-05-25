@@ -1,7 +1,7 @@
 #!/bin/bash
 #!Author:ZhangDezhi
 # Create Time:2021-05-19 08:17
-# Last Modified  : 2021-05-25 10:41:47
+# Last Modified  : 2021-05-25 16:24:58
 # Name:svnAllVerson.sh
 # Version: v1.0
 # Description: 批量下载svn上所有版本
@@ -73,6 +73,7 @@ do
     HTML_FILE_TITLE="
     <HTML>
     <head>
+    <meta charset=\"utf-8\">
     <title> 辉煌科技mas平台版本查询</title>
     <style>
     table { border-collapse:collapse;}
@@ -129,8 +130,8 @@ do
         _message=$(svn log -$line  "$SVNPATH/$file" | sed -n 4p | sed 's/,/ /g')
         _time=$(svn log -$line "$SVNPATH/$file" | awk '/^r/{print $5}' )
         _who=$(svn log -$line  "$SVNPATH/$file" | awk '/^r/{print $3}' )
-        _md5=$(md5sum $file | awk ' {print $1}')
-        _masVersion=$(strings $file | grep "version" | sed -n 1p)
+        _md5=$(md5sum "./History/$line/$file" | awk ' {print $1}')
+        _masVersion=$(strings "./History/$line/$file" | grep "version" | sed -n 1p)
         echo "$file,$_time,$line,$_md5,$_masVersion,$_who,$_message" >> Report/allfile.csv
 
         echo " <th align=\"center\" valign=\"middle\"> $file</th>" >> Report/file/$file.html
